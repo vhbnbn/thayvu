@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phần trắc nghiệm - Luyện tập</title>
+    <style>
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f7fbff; color: #1c2b3a; line-height: 1.6; }
+ 
+        .topbar { position: sticky; top: 0; z-index: 50; background: #1e88e5; color: #fff; padding: 8px 14px 6px; box-shadow: 0 2px 6px rgba(30,136,229,.25); }
+        .topbar .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; max-width: 820px; margin: auto; }
+        .topbar h1 { margin: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+        .stats { font-size: 13px; opacity: .95; }
+        .bar { max-width: 820px; margin: 6px auto 0; height: 6px; background: rgba(255,255,255,.35); border-radius: 3px; overflow: hidden; }
+        .bar > i { display: block; height: 100%; width: 0; background: #fff; transition: width .3s; }
+        .tbtn { background: #fff; color: #1565c0; border: none; border-radius: 4px; padding: 5px 12px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .tbtn:hover { background: #e3f0fb; }
+ 
+        main { max-width: 820px; margin: auto; padding: 14px; }
+        details.settings { background: #fff; border: 1px solid #b3d4fc; border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; }
+        details.settings summary { cursor: pointer; font-weight: bold; color: #1565c0; }
+        .setrow { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 10px 0 6px; font-size: 14px; }
+        .setrow label { cursor: pointer; }
+        .setbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .sbtn { background: #1e88e5; color: #fff; border: none; border-radius: 4px; padding: 7px 14px; cursor: pointer; font-weight: bold; }
+        .sbtn:hover { background: #1565c0; }
+        .sbtn.warn { background: #ef6c00; }
+        .sbtn.warn:hover { background: #e65100; }
+        #note { font-size: 12px; color: #8a5a00; margin-top: 6px; min-height: 1em; }
+ 
+        h3.parttitle { color: #1565c0; border-bottom: 2px solid #b3d4fc; padding-bottom: 5px; margin: 26px 0 12px; text-transform: uppercase; font-size: 17px; }
+ 
+        .question { background: #eef6fc; border: 2px solid #b3d4fc; border-radius: 6px; padding: 14px; margin-bottom: 16px; overflow-x: auto; }
+        .question:not(.shown) { display: none; }
+        .question.s-correct { border-color: #28a745; }
+        .question.s-wrong { border-color: #dc3545; }
+        .question.s-partial { border-color: #ff9800; }
+        .hide-done .question.done-hide { display: none; }
+        .qtext { margin-bottom: 12px; word-wrap: break-word; }
+        mjx-container { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+ 
+        #moreWrap { text-align: center; margin: 6px 0 26px; }
+        #moreBtn { background: #fff; color: #1565c0; border: 2px dashed #1e88e5; border-radius: 6px; padding: 10px 22px; font-weight: bold; cursor: pointer; }
+        #moreBtn:hover { background: #e3f0fb; }
+ 
+        .opt { display: flex; gap: 8px; align-items: flex-start; background: #fff; border: 1px solid #b3d4fc; border-radius: 4px; padding: 9px 11px; margin: 7px 0; cursor: pointer; transition: .2s; }
+        .opt:hover:not(.locked) { background: #e3f0fb; border-color: #1e88e5; }
+        .opt:focus-visible, .tfb button:focus-visible { outline: 3px solid #ff9800; outline-offset: 1px; }
+        .opt.locked { cursor: default; }
+        .opt.locked:not(.correct):not(.wrong) { opacity: .55; }
+        .opt.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .opt.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .lab { font-weight: bold; min-width: 1.7em; }
+        .ob { flex: 1; min-width: 0; overflow-x: auto; }
+ 
+        .tfrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; background: #fff; border: 1px solid #b3d4fc; border-radius: 4px; padding: 8px 10px; margin: 7px 0; }
+        .tfrow.r-ok { border-color: #28a745; }
+        .tfrow.r-bad { border-color: #dc3545; }
+        .tfc { flex: 1 1 60%; min-width: 0; overflow-x: auto; }
+        .tfb { display: flex; gap: 8px; }
+        .tfb button { padding: 6px 16px; font-weight: bold; border: 2px solid #b3d4fc; background: #fff; border-radius: 5px; cursor: pointer; }
+        .tfb button:hover:not(:disabled) { background: #e3f0fb; }
+        .tfb button:disabled { cursor: default; }
+        .tfb button.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .tfb button.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+ 
+        .shortrow { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sans { width: 190px; max-width: 100%; padding: 9px 12px; font-size: 18px; font-weight: bold; border: 2px solid #1e88e5; border-radius: 5px; color: #1565c0; }
+        .sans.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .sans.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .chk { background: #ffc107; border: none; border-radius: 5px; padding: 0 18px; font-weight: bold; cursor: pointer; min-height: 42px; }
+        .chk:disabled { background: #ccc; cursor: default; }
+        .true-ans { margin-top: 10px; color: #28a745; font-weight: bold; }
+ 
+        .fb { margin-top: 8px; font-weight: bold; min-height: 1.2em; }
+        .f-correct { color: #28a745; } .f-wrong { color: #dc3545; } .f-partial { color: #ef6c00; }
+        .qtools { margin-top: 6px; }
+        .sol-btn { background: #17a2b8; color: #fff; border: none; border-radius: 4px; padding: 6px 14px; cursor: pointer; font-weight: bold; }
+        .sol-btn:hover { background: #138496; }
+        .solution-box { display: none; margin-top: 12px; padding: 14px; background: #e8f4fc; border-left: 5px solid #0288d1; border-radius: 4px; overflow-x: auto; }
+ 
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; display: none; align-items: center; justify-content: center; padding: 14px; }
+        .modal.open { display: flex; }
+        .mbox { background: #fff; border-radius: 10px; width: 100%; max-width: 440px; padding: 22px 22px 18px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-height: 92vh; overflow-y: auto; }
+        .mbox h2 { margin: 0 0 4px; color: #1565c0; }
+        .bigscore { font-size: 40px; font-weight: bold; color: #e53935; line-height: 1.2; }
+        .pct { font-size: 18px; color: #555; margin-bottom: 6px; }
+        #sumMsg { margin: 4px 0 10px; color: #333; }
+        .plist { list-style: none; padding: 0; margin: 10px 0 14px; text-align: left; }
+        .plist li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #cfe0f1; padding: 6px 0; font-size: 14px; }
+        .mbtns { display: flex; flex-direction: column; gap: 8px; }
+ 
+        /* --- SVG / ẢNH + KHUNG ZOOM DÙNG CHUNG (khung tự co giãn, không đặt chiều cao cố định) --- */
+        :root {
+            --zoom-accent: #1e88e5; --zoom-accent-hover: #1565c0;
+            --zoom-border: #b3d4fc; --zoom-bar-bg: #eef6fc; --zoom-max-h: none;
+        }
+        svg { max-width: 100%; height: auto; display: block; margin: 10px auto; overflow: visible; }
+        svg text { font-family: Arial, sans-serif; }
+        img { max-width: 100%; height: auto; }
+        .zoom-container { display: flex; align-items: flex-start; gap: 10px; margin: 15px 0; }
+        .zoom-viewport {
+            flex: 1 1 auto; min-width: 0;
+            overflow: auto; -webkit-overflow-scrolling: touch;
+            border: 1px solid var(--zoom-border); border-radius: 4px; background: #fff;
+            box-sizing: border-box; padding: 4px;
+        }
+        /* chỉ giới hạn chiều cao và giữ cuộn bên trong khi ảnh đang được phóng to */
+        .zoom-viewport.can-pan { cursor: grab; max-height: var(--zoom-max-h); overscroll-behavior: contain; }
+        .zoom-viewport.dragging { cursor: grabbing; user-select: none; }
+        .zoom-toolbar { display: flex; flex-direction: column; gap: 5px; background: var(--zoom-bar-bg); padding: 5px; border-radius: 4px; border: 1px solid var(--zoom-border); flex-shrink: 0; }
+        .zoom-btn { background: var(--zoom-accent); color: #fff; border: none; padding: 6px 10px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background .2s, opacity .2s; white-space: nowrap; }
+        .zoom-btn:hover:not(:disabled) { background: var(--zoom-accent-hover); }
+        .zoom-btn:disabled { background: #ccc; cursor: not-allowed; opacity: .6; }
+        .zoom-media { display: block; margin: 0 auto; max-width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+        .zoom-media.zoomed { width: var(--zw) !important; max-width: none !important; height: auto !important; }
+
+        
+        /* ===== Bổ sung của bộ chuyển đổi TeX2HTML (PyQt6) ===== */
+        .tp { margin: 6px 0; }
+        .center { text-align: center; }
+        .figure svg, .figure img { max-width: 100%; height: auto; }
+        .fig-error { color: #b00020; border: 1px dashed #b00020; padding: 6px 10px; text-align: center; margin: 8px 0; font-size: 14px; }
+        .fbox { border: 1px solid currentColor; padding: 0 4px; }
+        blockquote { margin: 8px 20px; }
+        img { max-width: 100%; height: auto; }
+        ul, ol { margin: 6px 0; padding-left: 24px; }
+        ul.desc, li.cl { list-style: none; }
+        li.cl .lbl { font-weight: bold; margin-right: .4em; }
+        ol[class^="paren-"] { list-style: none; counter-reset: pc; padding-left: 2.2em; }
+        ol[class^="paren-"] > li { counter-increment: pc; position: relative; margin: 4px 0; }
+        ol[class^="paren-"] > li::before { position: absolute; left: -2.2em; width: 2em; text-align: right; font-weight: bold; }
+        ol.paren-a > li::before { content: counter(pc, lower-alpha) ")"; }
+        ol.paren-A > li::before { content: counter(pc, upper-alpha) ")"; }
+        ol.paren-i > li::before { content: counter(pc, lower-roman) ")"; }
+        ol.paren-I > li::before { content: counter(pc, upper-roman) ")"; }
+        ol.paren-1 > li::before { content: counter(pc, decimal) ")"; }
+        table.tex-table { border-collapse: collapse; margin: 8px auto; }
+        table.tex-table td { padding: 4px 10px; }
+        table.tex-table.bordered td { border: 1px solid #555; }
+
+
+ 
+        /* ---- THANH ĐIỀU HƯỚNG CỐ ĐỊNH Ở CUỐI TRANG (kèm footer) ---- */
+        body { padding-bottom: 64px; }
+        .question { scroll-margin-top: 84px; }
+        .question.flash { animation: flash 1.6s ease; }
+        @keyframes flash { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,152,0,0); } 30% { box-shadow: 0 0 0 6px rgba(255,152,0,.7); } }
+        .navbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #fff; border-top: 2px solid #b3d4fc; box-shadow: 0 -2px 8px rgba(0,0,0,.08); padding: 6px 12px; }
+        .navin { max-width: 820px; margin: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .nbtn { background: #1e88e5; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; font-weight: bold; cursor: pointer; font-size: 13px; white-space: nowrap; }
+        .nbtn:hover { background: #1565c0; }
+        .jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #1565c0; font-weight: bold; white-space: nowrap; }
+        .jump input { width: 62px; padding: 5px 6px; border: 2px solid #1e88e5; border-radius: 4px; font-size: 14px; text-align: center; }
+        .nav-credit { margin-left: auto; font-size: 12px; color: #5f7b94; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40%; }
+        .nav-credit:empty { display: none; }
+        #tocModal .mbox { max-width: 540px; }
+        .tocleg { display: flex; flex-wrap: wrap; gap: 6px 10px; justify-content: center; margin: 8px 0 10px; font-size: 12px; }
+        .tocleg span { padding: 1px 9px; border: 2px solid; border-radius: 12px; }
+        .tocgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 7px; margin-bottom: 14px; }
+        .tocitem { min-height: 40px; border: 2px solid; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .tocitem:hover { filter: brightness(.94); }
+        .t-none { background: #e2eefb; border-color: #1e88e5; color: #0d47a1; }
+        .t-correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .t-wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .t-partial { background: #fff3cd; border-color: #ff9800; color: #7a4b00; }
+        @media (max-width: 600px) {
+            main { padding: 10px; } .question { padding: 10px; } .tfc { flex-basis: 100%; }
+            body { padding-bottom: 92px; }
+            .navin { justify-content: center; }
+            .nav-credit { flex-basis: 100%; max-width: 100%; margin-left: 0; text-align: center; font-size: 11px; }
+        }
+    </style>
+ 
+    <script>
+        window.MathJax = {
+          tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']], processEscapes: true, macros: {"wideparen": ["\\overset{\\frown}{#1}", 1], "overarc": ["\\overset{\\frown}{#1}", 1]} },
+          startup: { typeset: false },
+          options: { enableMenu: false }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div class="row">
+            <h1>Phần trắc nghiệm</h1>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <span class="stats" id="stStats"></span>
+                <button type="button" class="tbtn" id="btnResult">Kết quả</button>
+            </div>
+        </div>
+        <div class="bar"><i id="barFill"></i></div>
+    </div>
+ 
+    <main>
+        <details class="settings">
+            <summary>⚙ Tuỳ chọn luyện tập</summary>
+            <div class="setrow">
+                <label><input type="checkbox" id="optSQ"> Trộn thứ tự câu hỏi</label>
+                <label><input type="checkbox" id="optSC"> Trộn thứ tự phương án (phần 1)</label>
+                <label><input type="checkbox" id="optHide"> Ẩn các câu đã làm đúng</label>
+            </div>
+            <div class="setbtns">
+                <button type="button" class="sbtn" id="btnRetry">Làm lại câu chưa đúng</button>
+                <button type="button" class="sbtn warn" id="btnRestart">Làm lại từ đầu</button>
+            </div>
+            <div id="note"></div>
+        </details>
+ 
+        <section class="part" data-part="1"><h3 class="parttitle">PHẦN 1. Câu trắc nghiệm nhiều phương án lựa chọn</h3><div class="qlist"><div class="question" id="q_P1_1" data-id="P1_1" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho đường tròn $(O; 4 \mathrm{cm})$ và hai điểm $A$, $B$. Biết rằng $OA=\sqrt{15} \mathrm{cm}$ và $OB=4 \mathrm{cm}$. Khi đó:</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">Điểm $A$ nằm trong $(O)$, điểm $B$ nằm ngoài $(O)$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">Điểm $A$ nằm ngoài $(O)$, điểm $B$ nằm trên $(O)$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">Điểm $A$ nằm trên $(O)$, điểm $B$ nằm trong $(O)$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">Điểm $A$ nằm trong $(O)$, điểm $B$ nằm trên $(O)$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Vì $OA=\sqrt{15}&lt;R \Rightarrow A$ nằm trong đường tròn.<br> Vì $OB=4=R \Rightarrow B$ nằm trên đường tròn.</div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="99.429pt" height="85.746pt" viewBox="0 0 99.429 85.746" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f1_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph0-1">
+<path style="stroke:none;" d="M 3.859375 8.46875 L 2.109375 4.609375 C 2.046875 4.453125 1.984375 4.453125 1.96875 4.453125 C 1.953125 4.453125 1.90625 4.453125 1.796875 4.53125 L 0.859375 5.25 C 0.71875 5.34375 0.71875 5.375 0.71875 5.40625 C 0.71875 5.453125 0.75 5.515625 0.828125 5.515625 C 0.875 5.515625 1.046875 5.375 1.15625 5.296875 C 1.21875 5.25 1.359375 5.140625 1.46875 5.0625 L 3.421875 9.34375 C 3.5 9.515625 3.546875 9.515625 3.640625 9.515625 C 3.78125 9.515625 3.8125 9.453125 3.890625 9.3125 L 8.375 0 C 8.453125 -0.140625 8.453125 -0.171875 8.453125 -0.203125 C 8.453125 -0.296875 8.375 -0.390625 8.25 -0.390625 C 8.171875 -0.390625 8.109375 -0.34375 8.03125 -0.1875 Z M 3.859375 8.46875 "/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph1-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph1-1">
+<path style="stroke:none;" d="M 2.90625 -6.34375 C 2.90625 -6.578125 2.90625 -6.59375 2.6875 -6.59375 C 2.078125 -5.96875 1.203125 -5.96875 0.875 -5.96875 L 0.875 -5.65625 C 1.078125 -5.65625 1.671875 -5.65625 2.171875 -5.90625 L 2.171875 -0.78125 C 2.171875 -0.421875 2.15625 -0.3125 1.265625 -0.3125 L 0.9375 -0.3125 L 0.9375 0 C 1.28125 -0.03125 2.15625 -0.03125 2.546875 -0.03125 C 2.9375 -0.03125 3.796875 -0.03125 4.15625 0 L 4.15625 -0.3125 L 3.828125 -0.3125 C 2.9375 -0.3125 2.90625 -0.421875 2.90625 -0.78125 Z M 2.90625 -6.34375 "/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph1-2">
+<path style="stroke:none;" d="M 4.453125 -1.984375 C 4.453125 -3.171875 3.640625 -4.15625 2.5625 -4.15625 C 2.09375 -4.15625 1.671875 -4 1.3125 -3.65625 L 1.3125 -5.59375 C 1.5 -5.53125 1.828125 -5.453125 2.15625 -5.453125 C 3.375 -5.453125 4.0625 -6.359375 4.0625 -6.484375 C 4.0625 -6.546875 4.03125 -6.59375 3.96875 -6.59375 C 3.953125 -6.59375 3.9375 -6.59375 3.890625 -6.5625 C 3.6875 -6.484375 3.203125 -6.28125 2.53125 -6.28125 C 2.140625 -6.28125 1.6875 -6.34375 1.21875 -6.5625 C 1.140625 -6.59375 1.125 -6.59375 1.09375 -6.59375 C 1 -6.59375 1 -6.515625 1 -6.34375 L 1 -3.421875 C 1 -3.234375 1 -3.15625 1.140625 -3.15625 C 1.203125 -3.15625 1.234375 -3.1875 1.265625 -3.25 C 1.375 -3.40625 1.75 -3.9375 2.546875 -3.9375 C 3.0625 -3.9375 3.3125 -3.484375 3.390625 -3.3125 C 3.546875 -2.9375 3.5625 -2.5625 3.5625 -2.0625 C 3.5625 -1.71875 3.5625 -1.125 3.328125 -0.703125 C 3.09375 -0.3125 2.71875 -0.0625 2.265625 -0.0625 C 1.546875 -0.0625 0.984375 -0.578125 0.8125 -1.171875 C 0.84375 -1.15625 0.875 -1.15625 0.984375 -1.15625 C 1.3125 -1.15625 1.46875 -1.390625 1.46875 -1.640625 C 1.46875 -1.875 1.3125 -2.125 0.984375 -2.125 C 0.84375 -2.125 0.5 -2.046875 0.5 -1.59375 C 0.5 -0.75 1.171875 0.21875 2.28125 0.21875 C 3.4375 0.21875 4.453125 -0.734375 4.453125 -1.984375 Z M 4.453125 -1.984375 "/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph1-3">
+<path style="stroke:none;" d="M 2.90625 -1.640625 L 2.90625 -0.765625 C 2.90625 -0.421875 2.890625 -0.3125 2.15625 -0.3125 L 1.953125 -0.3125 L 1.953125 0 C 2.359375 -0.03125 2.875 -0.03125 3.28125 -0.03125 C 3.703125 -0.03125 4.234375 -0.03125 4.640625 0 L 4.640625 -0.3125 L 4.421875 -0.3125 C 3.6875 -0.3125 3.671875 -0.421875 3.671875 -0.765625 L 3.671875 -1.640625 L 4.671875 -1.640625 L 4.671875 -1.9375 L 3.671875 -1.9375 L 3.671875 -6.453125 C 3.671875 -6.640625 3.671875 -6.703125 3.515625 -6.703125 C 3.421875 -6.703125 3.390625 -6.703125 3.3125 -6.59375 L 0.28125 -1.9375 L 0.28125 -1.640625 Z M 2.96875 -1.9375 L 0.5625 -1.9375 L 2.96875 -5.640625 Z M 2.96875 -1.9375 "/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph2-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph2-1">
+<path style="stroke:none;" d="M 7.328125 -4.3125 C 7.328125 -5.90625 6.28125 -6.984375 4.796875 -6.984375 C 2.671875 -6.984375 0.484375 -4.734375 0.484375 -2.421875 C 0.484375 -0.78125 1.59375 0.21875 3.015625 0.21875 C 5.125 0.21875 7.328125 -1.953125 7.328125 -4.3125 Z M 3.078125 -0.046875 C 2.09375 -0.046875 1.40625 -0.84375 1.40625 -2.15625 C 1.40625 -2.578125 1.546875 -4.03125 2.3125 -5.1875 C 2.984375 -6.21875 3.96875 -6.734375 4.75 -6.734375 C 5.5625 -6.734375 6.453125 -6.1875 6.453125 -4.703125 C 6.453125 -4 6.1875 -2.453125 5.203125 -1.234375 C 4.71875 -0.625 3.90625 -0.046875 3.078125 -0.046875 Z M 3.078125 -0.046875 "/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph2-2">
+<path style="stroke:none;" d="M 1.765625 -1.140625 C 1.375 -0.46875 0.984375 -0.34375 0.5625 -0.3125 C 0.4375 -0.296875 0.34375 -0.296875 0.34375 -0.109375 C 0.34375 -0.046875 0.390625 0 0.46875 0 C 0.75 0 1.046875 -0.03125 1.328125 -0.03125 C 1.65625 -0.03125 2 0 2.3125 0 C 2.375 0 2.5 0 2.5 -0.1875 C 2.5 -0.296875 2.421875 -0.3125 2.34375 -0.3125 C 2.125 -0.328125 1.875 -0.40625 1.875 -0.65625 C 1.875 -0.765625 1.9375 -0.875 2.015625 -1.015625 L 2.78125 -2.28125 L 5.265625 -2.28125 C 5.28125 -2.078125 5.421875 -0.734375 5.421875 -0.640625 C 5.421875 -0.34375 4.90625 -0.3125 4.703125 -0.3125 C 4.5625 -0.3125 4.46875 -0.3125 4.46875 -0.109375 C 4.46875 0 4.59375 0 4.609375 0 C 5.015625 0 5.4375 -0.03125 5.84375 -0.03125 C 6.09375 -0.03125 6.71875 0 6.96875 0 C 7.03125 0 7.140625 0 7.140625 -0.203125 C 7.140625 -0.3125 7.046875 -0.3125 6.921875 -0.3125 C 6.296875 -0.3125 6.296875 -0.375 6.265625 -0.65625 L 5.671875 -6.859375 C 5.640625 -7.046875 5.640625 -7.09375 5.484375 -7.09375 C 5.3125 -7.09375 5.28125 -7.03125 5.21875 -6.921875 Z M 2.96875 -2.59375 L 4.90625 -5.859375 L 5.234375 -2.59375 Z M 2.96875 -2.59375 "/>
+</symbol>
+<symbol overflow="visible" id="f1_glyph2-3">
+<path style="stroke:none;" d="M 1.578125 -0.765625 C 1.484375 -0.390625 1.46875 -0.3125 0.6875 -0.3125 C 0.515625 -0.3125 0.421875 -0.3125 0.421875 -0.109375 C 0.421875 0 0.5 0 0.6875 0 L 4.21875 0 C 5.78125 0 6.953125 -1.171875 6.953125 -2.140625 C 6.953125 -2.859375 6.375 -3.421875 5.421875 -3.53125 C 6.453125 -3.71875 7.484375 -4.453125 7.484375 -5.40625 C 7.484375 -6.125 6.828125 -6.765625 5.640625 -6.765625 L 2.3125 -6.765625 C 2.125 -6.765625 2.03125 -6.765625 2.03125 -6.5625 C 2.03125 -6.453125 2.125 -6.453125 2.3125 -6.453125 C 2.328125 -6.453125 2.515625 -6.453125 2.6875 -6.4375 C 2.859375 -6.421875 2.953125 -6.40625 2.953125 -6.28125 C 2.953125 -6.234375 2.9375 -6.21875 2.90625 -6.09375 Z M 3.078125 -3.625 L 3.6875 -6.078125 C 3.78125 -6.421875 3.796875 -6.453125 4.234375 -6.453125 L 5.515625 -6.453125 C 6.375 -6.453125 6.59375 -5.875 6.59375 -5.4375 C 6.59375 -4.5625 5.734375 -3.625 4.53125 -3.625 Z M 2.640625 -0.3125 C 2.5 -0.3125 2.484375 -0.3125 2.421875 -0.3125 C 2.3125 -0.328125 2.28125 -0.34375 2.28125 -0.421875 C 2.28125 -0.453125 2.28125 -0.46875 2.34375 -0.640625 L 3.015625 -3.40625 L 4.890625 -3.40625 C 5.84375 -3.40625 6.03125 -2.671875 6.03125 -2.25 C 6.03125 -1.265625 5.15625 -0.3125 3.984375 -0.3125 Z M 2.640625 -0.3125 "/>
+</symbol>
+</g>
+</defs>
+<g id="f1_surface1">
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 39.68434 0.000635046 C 39.68434 21.918756 21.918836 39.68426 0.000715164 39.68426 C -21.917406 39.68426 -39.686838 21.918756 -39.686838 0.000635046 C -39.686838 -21.917486 -21.917406 -39.686918 0.000715164 -39.686918 C 21.918836 -39.686918 39.68434 -21.917486 39.68434 0.000635046 Z M 10.859594 29.835052 L 0.000715164 0.000635046 L 39.68434 0.000635046 " transform="matrix(0.99429,0,0,-0.99429,42.628195,42.746725)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f1_glyph0-1" x="25.7889" y="23.555934"/>
+</g>
+<path style="fill:none;stroke-width:0.398;stroke-linecap:butt;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -0.00152958 -0.00131232 L 9.96161 -0.00131232 " transform="matrix(0.99429,0,0,-0.99429,34.04449,23.35807)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f1_glyph1-1" x="34.04449" y="31.750872"/>
+  <use xlink:href="#f1_glyph1-2" x="38.997346" y="31.750872"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f1_glyph1-3" x="59.881115" y="53.206656"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 43.667969 42.746094 C 43.667969 42.171875 43.203125 41.707031 42.628906 41.707031 C 42.054688 41.707031 41.589844 42.171875 41.589844 42.746094 C 41.589844 43.320312 42.054688 43.785156 42.628906 43.785156 C 43.203125 43.785156 43.667969 43.320312 43.667969 42.746094 Z M 43.667969 42.746094 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f1_glyph2-1" x="32.793673" y="46.131288"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 54.464844 13.082031 C 54.464844 12.507812 54 12.042969 53.425781 12.042969 C 52.851562 12.042969 52.386719 12.507812 52.386719 13.082031 C 52.386719 13.65625 52.851562 14.121094 53.425781 14.121094 C 54 14.121094 54.464844 13.65625 54.464844 13.082031 Z M 54.464844 13.082031 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f1_glyph2-2" x="55.628537" y="16.46764"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 83.128906 42.746094 C 83.128906 42.171875 82.660156 41.707031 82.085938 41.707031 C 81.511719 41.707031 81.046875 42.171875 81.046875 42.746094 C 81.046875 43.320312 81.511719 43.785156 82.085938 43.785156 C 82.660156 43.785156 83.128906 43.320312 83.128906 42.746094 Z M 83.128906 42.746094 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f1_glyph2-3" x="84.000602" y="46.131288"/>
+</g>
+</g>
+</svg></div></div></div></div></div></div>
+<div class="question" id="q_P1_2" data-id="P1_2" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho hình bên, trong đó $BD$ là đường kính, $\widehat{AOB}=40^{\circ}$; $\widehat{BOC}=100^{\circ}$. Khi đó:</div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="107.862pt" height="123.018pt" viewBox="0 0 107.862 123.018" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f2_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph0-1">
+<path style="stroke:none;" d="M 2.90625 -6.328125 C 2.90625 -6.5625 2.90625 -6.59375 2.6875 -6.59375 C 2.0625 -5.953125 1.203125 -5.953125 0.875 -5.953125 L 0.875 -5.640625 C 1.078125 -5.640625 1.65625 -5.640625 2.171875 -5.90625 L 2.171875 -0.78125 C 2.171875 -0.421875 2.140625 -0.3125 1.25 -0.3125 L 0.9375 -0.3125 L 0.9375 0 C 1.28125 -0.03125 2.140625 -0.03125 2.546875 -0.03125 C 2.9375 -0.03125 3.796875 -0.03125 4.140625 0 L 4.140625 -0.3125 L 3.828125 -0.3125 C 2.9375 -0.3125 2.90625 -0.421875 2.90625 -0.78125 Z M 2.90625 -6.328125 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph0-2">
+<path style="stroke:none;" d="M 4.546875 -3.171875 C 4.546875 -3.953125 4.5 -4.75 4.15625 -5.484375 C 3.703125 -6.421875 2.890625 -6.59375 2.46875 -6.59375 C 1.875 -6.59375 1.15625 -6.328125 0.75 -5.40625 C 0.4375 -4.734375 0.390625 -3.953125 0.390625 -3.171875 C 0.390625 -2.421875 0.421875 -1.53125 0.828125 -0.78125 C 1.25 0.015625 1.984375 0.21875 2.46875 0.21875 C 3 0.21875 3.75 0.015625 4.1875 -0.9375 C 4.5 -1.609375 4.546875 -2.390625 4.546875 -3.171875 Z M 2.46875 0 C 2.078125 0 1.5 -0.25 1.3125 -1.203125 C 1.203125 -1.796875 1.203125 -2.703125 1.203125 -3.28125 C 1.203125 -3.921875 1.203125 -4.5625 1.28125 -5.109375 C 1.46875 -6.28125 2.21875 -6.375 2.46875 -6.375 C 2.796875 -6.375 3.4375 -6.1875 3.625 -5.21875 C 3.734375 -4.65625 3.734375 -3.90625 3.734375 -3.28125 C 3.734375 -2.546875 3.734375 -1.875 3.625 -1.234375 C 3.46875 -0.296875 2.90625 0 2.46875 0 Z M 2.46875 0 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph0-3">
+<path style="stroke:none;" d="M 2.90625 -1.625 L 2.90625 -0.765625 C 2.90625 -0.421875 2.890625 -0.3125 2.15625 -0.3125 L 1.953125 -0.3125 L 1.953125 0 C 2.359375 -0.03125 2.875 -0.03125 3.28125 -0.03125 C 3.703125 -0.03125 4.21875 -0.03125 4.625 0 L 4.625 -0.3125 L 4.421875 -0.3125 C 3.6875 -0.3125 3.671875 -0.421875 3.671875 -0.765625 L 3.671875 -1.625 L 4.65625 -1.625 L 4.65625 -1.9375 L 3.671875 -1.9375 L 3.671875 -6.4375 C 3.671875 -6.640625 3.671875 -6.703125 3.515625 -6.703125 C 3.421875 -6.703125 3.390625 -6.703125 3.3125 -6.578125 L 0.28125 -1.9375 L 0.28125 -1.625 Z M 2.96875 -1.9375 L 0.546875 -1.9375 L 2.96875 -5.625 Z M 2.96875 -1.9375 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph1-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph1-1">
+<path style="stroke:none;" d="M 3.515625 -1.734375 C 3.515625 -2.5625 2.84375 -3.21875 2.015625 -3.21875 C 1.1875 -3.21875 0.53125 -2.546875 0.53125 -1.734375 C 0.53125 -0.90625 1.203125 -0.25 2.015625 -0.25 C 2.859375 -0.25 3.515625 -0.921875 3.515625 -1.734375 Z M 2.015625 -0.59375 C 1.375 -0.59375 0.875 -1.109375 0.875 -1.734375 C 0.875 -2.375 1.390625 -2.875 2.015625 -2.875 C 2.671875 -2.875 3.171875 -2.359375 3.171875 -1.734375 C 3.171875 -1.09375 2.65625 -0.59375 2.015625 -0.59375 Z M 2.015625 -0.59375 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph2-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph2-1">
+<path style="stroke:none;" d="M 7.3125 -4.3125 C 7.3125 -5.90625 6.265625 -6.96875 4.796875 -6.96875 C 2.65625 -6.96875 0.484375 -4.734375 0.484375 -2.421875 C 0.484375 -0.78125 1.59375 0.21875 3.015625 0.21875 C 5.109375 0.21875 7.3125 -1.953125 7.3125 -4.3125 Z M 3.078125 -0.046875 C 2.09375 -0.046875 1.40625 -0.84375 1.40625 -2.140625 C 1.40625 -2.578125 1.546875 -4.03125 2.296875 -5.1875 C 2.984375 -6.21875 3.953125 -6.71875 4.734375 -6.71875 C 5.546875 -6.71875 6.4375 -6.171875 6.4375 -4.703125 C 6.4375 -3.984375 6.171875 -2.4375 5.1875 -1.21875 C 4.71875 -0.625 3.90625 -0.046875 3.078125 -0.046875 Z M 3.078125 -0.046875 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph2-2">
+<path style="stroke:none;" d="M 1.765625 -1.140625 C 1.375 -0.46875 0.984375 -0.34375 0.546875 -0.3125 C 0.4375 -0.296875 0.34375 -0.296875 0.34375 -0.109375 C 0.34375 -0.046875 0.390625 0 0.46875 0 C 0.734375 0 1.046875 -0.03125 1.328125 -0.03125 C 1.65625 -0.03125 2 0 2.3125 0 C 2.375 0 2.5 0 2.5 -0.1875 C 2.5 -0.296875 2.40625 -0.3125 2.34375 -0.3125 C 2.109375 -0.328125 1.875 -0.40625 1.875 -0.65625 C 1.875 -0.765625 1.9375 -0.875 2.015625 -1.015625 L 2.765625 -2.28125 L 5.25 -2.28125 C 5.265625 -2.078125 5.40625 -0.734375 5.40625 -0.640625 C 5.40625 -0.34375 4.890625 -0.3125 4.703125 -0.3125 C 4.5625 -0.3125 4.453125 -0.3125 4.453125 -0.109375 C 4.453125 0 4.578125 0 4.59375 0 C 5 0 5.4375 -0.03125 5.828125 -0.03125 C 6.078125 -0.03125 6.703125 0 6.953125 0 C 7.015625 0 7.125 0 7.125 -0.203125 C 7.125 -0.3125 7.03125 -0.3125 6.90625 -0.3125 C 6.296875 -0.3125 6.296875 -0.375 6.265625 -0.65625 L 5.65625 -6.84375 C 5.640625 -7.046875 5.640625 -7.078125 5.46875 -7.078125 C 5.3125 -7.078125 5.265625 -7.015625 5.21875 -6.90625 Z M 2.953125 -2.59375 L 4.90625 -5.859375 L 5.21875 -2.59375 Z M 2.953125 -2.59375 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph2-3">
+<path style="stroke:none;" d="M 1.578125 -0.765625 C 1.484375 -0.390625 1.46875 -0.3125 0.6875 -0.3125 C 0.515625 -0.3125 0.421875 -0.3125 0.421875 -0.109375 C 0.421875 0 0.5 0 0.6875 0 L 4.21875 0 C 5.78125 0 6.9375 -1.171875 6.9375 -2.140625 C 6.9375 -2.84375 6.375 -3.421875 5.40625 -3.53125 C 6.4375 -3.71875 7.484375 -4.453125 7.484375 -5.390625 C 7.484375 -6.125 6.828125 -6.75 5.640625 -6.75 L 2.3125 -6.75 C 2.125 -6.75 2.03125 -6.75 2.03125 -6.5625 C 2.03125 -6.453125 2.109375 -6.453125 2.296875 -6.453125 C 2.328125 -6.453125 2.515625 -6.453125 2.6875 -6.421875 C 2.859375 -6.40625 2.953125 -6.40625 2.953125 -6.265625 C 2.953125 -6.234375 2.9375 -6.203125 2.90625 -6.078125 Z M 3.078125 -3.625 L 3.6875 -6.078125 C 3.78125 -6.421875 3.796875 -6.453125 4.21875 -6.453125 L 5.5 -6.453125 C 6.375 -6.453125 6.578125 -5.859375 6.578125 -5.4375 C 6.578125 -4.5625 5.734375 -3.625 4.515625 -3.625 Z M 2.625 -0.3125 C 2.5 -0.3125 2.46875 -0.3125 2.40625 -0.3125 C 2.3125 -0.328125 2.28125 -0.34375 2.28125 -0.421875 C 2.28125 -0.4375 2.28125 -0.46875 2.328125 -0.640625 L 3.015625 -3.40625 L 4.890625 -3.40625 C 5.828125 -3.40625 6.015625 -2.671875 6.015625 -2.25 C 6.015625 -1.265625 5.140625 -0.3125 3.96875 -0.3125 Z M 2.625 -0.3125 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph2-4">
+<path style="stroke:none;" d="M 7.515625 -6.875 C 7.515625 -6.90625 7.5 -6.96875 7.40625 -6.96875 C 7.375 -6.96875 7.375 -6.96875 7.265625 -6.859375 L 6.5625 -6.09375 C 6.484375 -6.234375 6.015625 -6.96875 4.921875 -6.96875 C 2.71875 -6.96875 0.5 -4.78125 0.5 -2.5 C 0.5 -0.859375 1.65625 0.21875 3.171875 0.21875 C 4.03125 0.21875 4.78125 -0.171875 5.3125 -0.640625 C 6.234375 -1.4375 6.40625 -2.34375 6.40625 -2.375 C 6.40625 -2.46875 6.296875 -2.46875 6.28125 -2.46875 C 6.21875 -2.46875 6.171875 -2.453125 6.15625 -2.375 C 6.0625 -2.09375 5.828125 -1.390625 5.15625 -0.8125 C 4.46875 -0.25 3.84375 -0.09375 3.328125 -0.09375 C 2.4375 -0.09375 1.390625 -0.609375 1.390625 -2.140625 C 1.390625 -2.703125 1.609375 -4.3125 2.59375 -5.46875 C 3.1875 -6.171875 4.125 -6.671875 5 -6.671875 C 6.015625 -6.671875 6.59375 -5.90625 6.59375 -4.75 C 6.59375 -4.359375 6.5625 -4.359375 6.5625 -4.25 C 6.5625 -4.15625 6.671875 -4.15625 6.71875 -4.15625 C 6.84375 -4.15625 6.84375 -4.171875 6.890625 -4.359375 Z M 7.515625 -6.875 "/>
+</symbol>
+<symbol overflow="visible" id="f2_glyph2-5">
+<path style="stroke:none;" d="M 1.578125 -0.765625 C 1.46875 -0.390625 1.453125 -0.3125 0.671875 -0.3125 C 0.5 -0.3125 0.390625 -0.3125 0.390625 -0.125 C 0.390625 0 0.484375 0 0.671875 0 L 3.953125 0 C 6 0 7.953125 -2.09375 7.953125 -4.25 C 7.953125 -5.640625 7.109375 -6.75 5.625 -6.75 L 2.296875 -6.75 C 2.109375 -6.75 2 -6.75 2 -6.5625 C 2 -6.453125 2.09375 -6.453125 2.296875 -6.453125 C 2.421875 -6.453125 2.59375 -6.4375 2.71875 -6.421875 C 2.875 -6.40625 2.9375 -6.375 2.9375 -6.265625 C 2.9375 -6.234375 2.921875 -6.203125 2.890625 -6.078125 Z M 3.703125 -6.078125 C 3.796875 -6.421875 3.8125 -6.453125 4.25 -6.453125 L 5.296875 -6.453125 C 6.265625 -6.453125 7.09375 -5.921875 7.09375 -4.625 C 7.09375 -4.140625 6.890625 -2.515625 6.046875 -1.421875 C 5.765625 -1.0625 4.984375 -0.3125 3.765625 -0.3125 L 2.65625 -0.3125 C 2.515625 -0.3125 2.5 -0.3125 2.4375 -0.3125 C 2.328125 -0.328125 2.296875 -0.34375 2.296875 -0.421875 C 2.296875 -0.4375 2.296875 -0.46875 2.359375 -0.640625 Z M 3.703125 -6.078125 "/>
+</symbol>
+</g>
+</defs>
+<g id="f2_surface1">
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45.353675 -0.00000161765 C 45.353675 25.04994 25.048338 45.355277 -0.00160362 45.355277 C -25.047608 45.355277 -45.356882 25.04994 -45.356882 -0.00000161765 C -45.356882 -25.049943 -25.047608 -45.35528 -0.00160362 -45.35528 C 25.048338 -45.35528 45.353675 -25.049943 45.353675 -0.00000161765 Z M -7.876467 44.670164 L 7.877198 -44.670167 M -22.677274 -39.279822 L -0.00160362 -0.00000161765 L 42.621097 15.51348 " transform="matrix(0.992081,0,0,-0.992081,48.517216,60.871092)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph0-1" x="55.879446" y="74.116361"/>
+  <use xlink:href="#f2_glyph0-2" x="60.821298" y="74.116361"/>
+  <use xlink:href="#f2_glyph0-2" x="65.763149" y="74.116361"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph1-1" x="70.7051" y="70.528997"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph0-3" x="36.419785" y="91.96786"/>
+  <use xlink:href="#f2_glyph0-2" x="41.361636" y="91.96786"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph1-1" x="46.303884" y="88.381488"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 49.703125 60.871094 C 49.703125 60.214844 49.171875 59.683594 48.515625 59.683594 C 47.863281 59.683594 47.332031 60.214844 47.332031 60.871094 C 47.332031 61.527344 47.863281 62.058594 48.515625 62.058594 C 49.171875 62.058594 49.703125 61.527344 49.703125 60.871094 Z M 49.703125 60.871094 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph2-1" x="37.860286" y="64.247143"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 27.203125 99.839844 C 27.203125 99.1875 26.671875 98.65625 26.019531 98.65625 C 25.363281 98.65625 24.832031 99.1875 24.832031 99.839844 C 24.832031 100.496094 25.363281 101.027344 26.019531 101.027344 C 26.671875 101.027344 27.203125 100.496094 27.203125 99.839844 Z M 27.203125 99.839844 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph2-2" x="18.937339" y="109.061409"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 57.515625 105.1875 C 57.515625 104.53125 56.984375 104 56.332031 104 C 55.675781 104 55.144531 104.53125 55.144531 105.1875 C 55.144531 105.839844 55.675781 106.371094 56.332031 106.371094 C 56.984375 106.371094 57.515625 105.839844 57.515625 105.1875 Z M 57.515625 105.1875 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph2-3" x="53.506389" y="115.209333"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 91.988281 45.480469 C 91.988281 44.824219 91.457031 44.292969 90.800781 44.292969 C 90.148438 44.292969 89.617188 44.824219 89.617188 45.480469 C 89.617188 46.136719 90.148438 46.667969 90.800781 46.667969 C 91.457031 46.667969 91.988281 46.136719 91.988281 45.480469 Z M 91.988281 45.480469 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph2-4" x="92.760044" y="45.482929"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 41.890625 16.554688 C 41.890625 15.898438 41.359375 15.367188 40.703125 15.367188 C 40.046875 15.367188 39.515625 15.898438 39.515625 16.554688 C 39.515625 17.207031 40.046875 17.738281 40.703125 17.738281 C 41.359375 17.738281 41.890625 17.207031 41.890625 16.554688 Z M 41.890625 16.554688 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f2_glyph2-5" x="34.165777" y="13.588529"/>
+</g>
+</g>
+</svg></div></div></div></div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">sđ $\wideparen{DC}=80^{\circ}$ và sđ $\wideparen{AD}=220^{\circ}$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">sđ $\wideparen{DC}=280^{\circ}$ và sđ $\wideparen{AD}=220^{\circ}$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">sđ $\wideparen{DC}=280^{\circ}$ và sđ $\wideparen{AD}=140^{\circ}$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">sđ $\wideparen{DC}=80^{\circ}$ và sđ $\wideparen{AD}=140^{\circ}$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Vì $BD$ là đường kính nên<br> $\text{ sđ }\wideparen{BC}+\text{ sđ }\wideparen{CD}=180^{\circ}\Rightarrow \text{ sđ }\wideparen{DC}=180^{\circ}-\text{ sđ }\wideparen{BC}=180^{\circ}-100^{\circ}=80^{\circ}$.<br> Vì $BD$ là đường kính nên<br> $\text{ sđ }\wideparen{BA}+\text{ sđ }\wideparen{AD}=180^{\circ}\Rightarrow \text{ sđ }\wideparen{DA}=180^{\circ}-\text{ sđ }\wideparen{BA}=180^{\circ}-40^{\circ}=140^{\circ}$.</div></div></div>
+<div class="question" id="q_P1_3" data-id="P1_3" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Trong hình bên, cho các điểm $A,B,C,D,E$ thuộc đường tròn $(O)$. Số đo góc $BOC$ là</div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="115.01pt" height="112.031pt" viewBox="0 0 115.01 112.031" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f3_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-1">
+<path style="stroke:none;" d="M 4.03125 -1.109375 C 4.765625 -1.90625 5.03125 -2.9375 5.03125 -3 C 5.03125 -3.078125 4.984375 -3.109375 4.90625 -3.109375 C 4.8125 -3.109375 4.796875 -3.078125 4.75 -2.90625 C 4.53125 -2.109375 4.0625 -1.484375 4.03125 -1.484375 C 4.015625 -1.484375 4.015625 -1.6875 4.015625 -1.8125 C 4 -3.203125 3.09375 -3.484375 2.5625 -3.484375 C 1.453125 -3.484375 0.34375 -2.40625 0.34375 -1.28125 C 0.34375 -0.5 0.890625 0.078125 1.734375 0.078125 C 2.28125 0.078125 2.875 -0.125 3.5 -0.578125 C 3.671875 0.046875 4.125 0.078125 4.265625 0.078125 C 4.71875 0.078125 4.984375 -0.328125 4.984375 -0.46875 C 4.984375 -0.5625 4.890625 -0.5625 4.859375 -0.5625 C 4.78125 -0.5625 4.765625 -0.546875 4.734375 -0.484375 C 4.609375 -0.15625 4.34375 -0.140625 4.296875 -0.140625 C 4.1875 -0.140625 4.0625 -0.140625 4.03125 -1.109375 Z M 3.4375 -0.84375 C 2.875 -0.34375 2.21875 -0.140625 1.75 -0.140625 C 1.34375 -0.140625 0.984375 -0.375 0.984375 -1.015625 C 0.984375 -1.28125 1.109375 -2.109375 1.484375 -2.625 C 1.796875 -3.078125 2.234375 -3.265625 2.546875 -3.265625 C 2.984375 -3.265625 3.234375 -2.953125 3.34375 -2.46875 C 3.453125 -1.9375 3.390625 -1.296875 3.4375 -0.84375 Z M 3.4375 -0.84375 "/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-2">
+<path style="stroke:none;" d="M 1.46875 -0.9375 C 1.09375 -0.359375 0.78125 -0.28125 0.484375 -0.265625 C 0.40625 -0.25 0.3125 -0.25 0.3125 -0.109375 C 0.3125 -0.09375 0.328125 0 0.421875 0 C 0.5 0 0.546875 -0.03125 1.09375 -0.03125 C 1.640625 -0.03125 1.8125 0 1.859375 0 C 1.890625 0 2.015625 0 2.015625 -0.15625 C 2.015625 -0.25 1.90625 -0.265625 1.875 -0.265625 C 1.703125 -0.265625 1.546875 -0.328125 1.546875 -0.5 C 1.546875 -0.625 1.609375 -0.734375 1.75 -0.953125 L 2.296875 -1.828125 L 4.453125 -1.828125 L 4.625 -0.484375 C 4.625 -0.375 4.484375 -0.265625 4.109375 -0.265625 C 4 -0.265625 3.890625 -0.265625 3.890625 -0.109375 C 3.890625 -0.109375 3.890625 0 4.03125 0 C 4.109375 0 4.40625 -0.015625 4.46875 -0.03125 L 4.96875 -0.03125 C 5.6875 -0.03125 5.8125 0 5.875 0 C 5.90625 0 6.046875 0 6.046875 -0.15625 C 6.046875 -0.265625 5.9375 -0.265625 5.8125 -0.265625 C 5.375 -0.265625 5.375 -0.328125 5.34375 -0.53125 L 4.71875 -5.421875 C 4.703125 -5.59375 4.6875 -5.640625 4.546875 -5.640625 C 4.40625 -5.640625 4.359375 -5.5625 4.3125 -5.484375 Z M 2.453125 -2.09375 L 4.09375 -4.6875 L 4.421875 -2.09375 Z M 2.453125 -2.09375 "/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-3">
+<path style="stroke:none;" d="M 1.34375 -0.625 C 1.265625 -0.328125 1.25 -0.265625 0.671875 -0.265625 C 0.515625 -0.265625 0.421875 -0.265625 0.421875 -0.109375 C 0.421875 0 0.515625 0 0.65625 0 L 3.59375 0 C 4.890625 0 5.859375 -0.921875 5.859375 -1.6875 C 5.859375 -2.265625 5.375 -2.734375 4.578125 -2.828125 C 5.5 -3 6.28125 -3.59375 6.28125 -4.296875 C 6.28125 -4.890625 5.703125 -5.40625 4.71875 -5.40625 L 1.953125 -5.40625 C 1.8125 -5.40625 1.703125 -5.40625 1.703125 -5.25 C 1.703125 -5.140625 1.796875 -5.140625 1.9375 -5.140625 C 2.203125 -5.140625 2.421875 -5.140625 2.421875 -5.015625 C 2.421875 -4.984375 2.421875 -4.96875 2.390625 -4.875 Z M 2.5625 -2.921875 L 3.046875 -4.84375 C 3.125 -5.109375 3.125 -5.140625 3.453125 -5.140625 L 4.59375 -5.140625 C 5.375 -5.140625 5.546875 -4.640625 5.546875 -4.3125 C 5.546875 -3.640625 4.828125 -2.921875 3.8125 -2.921875 Z M 2.03125 -0.265625 C 1.953125 -0.28125 1.921875 -0.28125 1.921875 -0.328125 C 1.921875 -0.390625 1.9375 -0.453125 1.953125 -0.5 L 2.515625 -2.703125 L 4.125 -2.703125 C 4.859375 -2.703125 5.09375 -2.203125 5.09375 -1.75 C 5.09375 -0.984375 4.34375 -0.265625 3.390625 -0.265625 Z M 2.03125 -0.265625 "/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-4">
+<path style="stroke:none;" d="M 6.296875 -5.359375 C 6.296875 -5.390625 6.3125 -5.4375 6.3125 -5.46875 C 6.3125 -5.53125 6.265625 -5.5625 6.21875 -5.5625 C 6.15625 -5.5625 6.140625 -5.546875 6.078125 -5.46875 L 5.515625 -4.859375 C 5.453125 -4.96875 5.03125 -5.5625 4.109375 -5.5625 C 2.265625 -5.5625 0.421875 -3.859375 0.421875 -2.046875 C 0.421875 -0.671875 1.46875 0.171875 2.71875 0.171875 C 3.75 0.171875 4.640625 -0.46875 5.0625 -1.078125 C 5.328125 -1.46875 5.421875 -1.84375 5.421875 -1.890625 C 5.421875 -1.96875 5.375 -2 5.3125 -2 C 5.203125 -2 5.1875 -1.953125 5.171875 -1.875 C 4.84375 -0.78125 3.765625 -0.09375 2.828125 -0.09375 C 2.015625 -0.09375 1.171875 -0.5625 1.171875 -1.78125 C 1.171875 -2.03125 1.25 -3.359375 2.140625 -4.34375 C 2.734375 -5 3.53125 -5.3125 4.15625 -5.3125 C 5.15625 -5.3125 5.5625 -4.5 5.5625 -3.75 C 5.5625 -3.640625 5.53125 -3.5 5.53125 -3.40625 C 5.53125 -3.296875 5.640625 -3.296875 5.671875 -3.296875 C 5.765625 -3.296875 5.78125 -3.328125 5.8125 -3.46875 Z M 6.296875 -5.359375 "/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-5">
+<path style="stroke:none;" d="M 1.328125 -0.625 C 1.25 -0.328125 1.234375 -0.265625 0.640625 -0.265625 C 0.5 -0.265625 0.40625 -0.265625 0.40625 -0.109375 C 0.40625 0 0.5 0 0.640625 0 L 3.359375 0 C 5.03125 0 6.6875 -1.59375 6.6875 -3.359375 C 6.6875 -4.5625 5.875 -5.40625 4.703125 -5.40625 L 1.9375 -5.40625 C 1.796875 -5.40625 1.6875 -5.40625 1.6875 -5.25 C 1.6875 -5.140625 1.78125 -5.140625 1.921875 -5.140625 C 2.1875 -5.140625 2.40625 -5.140625 2.40625 -5.015625 C 2.40625 -4.984375 2.40625 -4.96875 2.375 -4.875 Z M 3.0625 -4.84375 C 3.140625 -5.109375 3.140625 -5.140625 3.46875 -5.140625 L 4.421875 -5.140625 C 5.359375 -5.140625 5.984375 -4.609375 5.984375 -3.640625 C 5.984375 -3.390625 5.859375 -2.09375 5.171875 -1.203125 C 4.828125 -0.765625 4.15625 -0.265625 3.21875 -0.265625 L 2.046875 -0.265625 C 1.96875 -0.28125 1.9375 -0.28125 1.9375 -0.328125 C 1.9375 -0.390625 1.953125 -0.453125 1.96875 -0.5 Z M 3.0625 -4.84375 "/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-6">
+<path style="stroke:none;" d="M 5.921875 -1.828125 C 5.9375 -1.859375 5.953125 -1.90625 5.953125 -1.9375 C 5.953125 -1.953125 5.953125 -2.0625 5.828125 -2.0625 C 5.75 -2.0625 5.734375 -2.03125 5.65625 -1.859375 C 5.15625 -0.703125 4.78125 -0.265625 3.5 -0.265625 L 2.0625 -0.265625 C 1.984375 -0.28125 1.953125 -0.28125 1.953125 -0.328125 C 1.953125 -0.390625 1.96875 -0.453125 2 -0.5 L 2.53125 -2.671875 L 3.390625 -2.671875 C 3.96875 -2.671875 4.078125 -2.5625 4.078125 -2.3125 C 4.078125 -2.3125 4.078125 -2.1875 4.03125 -1.953125 C 4.015625 -1.921875 4 -1.875 4 -1.84375 C 4 -1.84375 4.015625 -1.734375 4.125 -1.734375 C 4.21875 -1.734375 4.234375 -1.78125 4.265625 -1.921875 L 4.6875 -3.578125 C 4.6875 -3.59375 4.71875 -3.71875 4.71875 -3.734375 C 4.71875 -3.8125 4.65625 -3.84375 4.59375 -3.84375 C 4.484375 -3.84375 4.484375 -3.796875 4.4375 -3.65625 C 4.28125 -3.046875 4.078125 -2.921875 3.390625 -2.921875 L 2.59375 -2.921875 L 3.078125 -4.8125 C 3.140625 -5.09375 3.15625 -5.109375 3.484375 -5.109375 L 4.71875 -5.109375 C 5.65625 -5.109375 5.96875 -4.921875 5.96875 -4.234375 C 5.96875 -4.0625 5.921875 -3.859375 5.921875 -3.71875 C 5.921875 -3.625 5.984375 -3.578125 6.046875 -3.578125 C 6.15625 -3.578125 6.15625 -3.65625 6.171875 -3.78125 L 6.3125 -5.125 C 6.328125 -5.171875 6.328125 -5.21875 6.328125 -5.265625 C 6.328125 -5.375 6.234375 -5.375 6.09375 -5.375 L 1.921875 -5.375 C 1.765625 -5.375 1.671875 -5.375 1.671875 -5.21875 C 1.671875 -5.109375 1.78125 -5.109375 1.90625 -5.109375 C 1.9375 -5.109375 2.078125 -5.109375 2.21875 -5.09375 C 2.375 -5.078125 2.390625 -5.0625 2.390625 -4.984375 C 2.390625 -4.953125 2.375 -4.90625 2.375 -4.859375 L 1.3125 -0.625 C 1.234375 -0.328125 1.21875 -0.265625 0.640625 -0.265625 C 0.484375 -0.265625 0.390625 -0.265625 0.390625 -0.109375 C 0.390625 0 0.5 0 0.625 0 L 4.90625 0 C 5.109375 0 5.109375 0 5.171875 -0.140625 Z M 5.921875 -1.828125 "/>
+</symbol>
+<symbol overflow="visible" id="f3_glyph0-7">
+<path style="stroke:none;" d="M 6.171875 -3.40625 C 6.171875 -4.703125 5.265625 -5.5625 4.015625 -5.5625 C 2.171875 -5.5625 0.40625 -3.734375 0.40625 -1.96875 C 0.40625 -0.765625 1.25 0.171875 2.578125 0.171875 C 4.359375 0.171875 6.171875 -1.53125 6.171875 -3.40625 Z M 2.65625 -0.09375 C 1.84375 -0.09375 1.1875 -0.671875 1.1875 -1.796875 C 1.1875 -1.921875 1.1875 -3.25 2.09375 -4.375 C 2.390625 -4.734375 3.09375 -5.328125 3.953125 -5.328125 C 4.75 -5.328125 5.4375 -4.78125 5.4375 -3.671875 C 5.4375 -3.234375 5.265625 -2.015625 4.453125 -1.046875 C 4 -0.5 3.328125 -0.09375 2.65625 -0.09375 Z M 2.65625 -0.09375 "/>
+</symbol>
+</g>
+<clipPath id="f3_clip1">
+  <path d="M 0.00390625 9 L 102 9 L 102 111.070312 L 0.00390625 111.070312 Z M 0.00390625 9 "/>
+</clipPath>
+</defs>
+<g id="f3_surface1">
+<g clip-path="url(#f3_clip1)" clip-rule="nonzero">
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 46.773397 -0.000337956 C 46.773397 25.830543 25.832102 46.771838 0.00122195 46.771838 C -25.833599 46.771838 -46.770954 25.830543 -46.770954 -0.000337956 C -46.770954 -25.831218 -25.833599 -46.772513 0.00122195 -46.772513 C 25.832102 -46.772513 46.773397 -25.831218 46.773397 -0.000337956 Z M 46.773397 -0.000337956 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+</g>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -15.999267 43.954711 L -30.065198 -35.831032 L 40.508739 -23.388396 L -15.999267 43.954711 M 0.00122195 -0.000337956 L -30.065198 -35.831032 L 30.067642 -35.831032 M 0.00122195 -0.000337956 L 30.067642 -35.831032 M -30.065198 -35.831032 L 46.064191 8.124018 M 30.067642 -35.831032 L 40.508739 -23.388396 L 46.064191 8.124018 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -16.810915 39.348808 C -15.447662 39.108466 -14.052889 39.48277 -12.993019 40.373218 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-1" x="32.177071" y="29.90732"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -15.451602 43.954711 C -15.451602 44.258094 -15.695884 44.502376 -15.999267 44.502376 C -16.30265 44.502376 -16.546932 44.258094 -16.546932 43.954711 C -16.546932 43.651328 -16.30265 43.407046 -15.999267 43.407046 C -15.695884 43.407046 -15.451602 43.651328 -15.451602 43.954711 Z M -15.451602 43.954711 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-2" x="30.528332" y="12.230216"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -29.517533 -35.831032 C -29.517533 -35.527649 -29.765755 -35.283366 -30.065198 -35.283366 C -30.368581 -35.283366 -30.616803 -35.527649 -30.616803 -35.831032 C -30.616803 -36.134414 -30.368581 -36.378697 -30.065198 -36.378697 C -29.765755 -36.378697 -29.517533 -36.134414 -29.517533 -35.831032 Z M -29.517533 -35.831032 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-3" x="8.441371" y="102.646173"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 41.056404 -23.388396 C 41.056404 -23.085013 40.812122 -22.840731 40.508739 -22.840731 C 40.205356 -22.840731 39.961074 -23.085013 39.961074 -23.388396 C 39.961074 -23.691779 40.205356 -23.936061 40.508739 -23.936061 C 40.812122 -23.936061 41.056404 -23.691779 41.056404 -23.388396 Z M 41.056404 -23.388396 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-4" x="94.854946" y="87.42582"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 46.611856 8.124018 C 46.611856 8.42346 46.367574 8.671683 46.064191 8.671683 C 45.764748 8.671683 45.516526 8.42346 45.516526 8.124018 C 45.516526 7.820635 45.764748 7.576353 46.064191 7.576353 C 46.367574 7.576353 46.611856 7.820635 46.611856 8.124018 Z M 46.611856 8.124018 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-5" x="100.074797" y="56.186025"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 30.615307 -35.831032 C 30.615307 -35.527649 30.371025 -35.283366 30.067642 -35.283366 C 29.764259 -35.283366 29.519977 -35.527649 29.519977 -35.831032 C 29.519977 -36.134414 29.764259 -36.378697 30.067642 -36.378697 C 30.371025 -36.378697 30.615307 -36.134414 30.615307 -35.831032 Z M 30.615307 -35.831032 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-6" x="84.347826" y="101.226453"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 0.548887 -0.000337956 C 0.548887 0.303045 0.300665 0.547327 0.00122195 0.547327 C -0.302161 0.547327 -0.546443 0.303045 -0.546443 -0.000337956 C -0.546443 -0.303721 -0.302161 -0.548003 0.00122195 -0.548003 C 0.300665 -0.548003 0.548887 -0.303721 0.548887 -0.000337956 Z M 0.548887 -0.000337956 " transform="matrix(0.991425,0,0,-0.991425,49.533945,61.538727)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f3_glyph0-7" x="46.2325" y="55.807301"/>
+</g>
+</g>
+</svg></div></div></div></div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$\alpha$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$2\alpha$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$180^\circ-\alpha$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$180^\circ-2\alpha$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Vì $BOC$ là góc ở tâm chắn cung $\wideparen{BC}$ nên $\widehat{BOC}=2\widehat{BAC}=2\alpha$.</div></div></div>
+<div class="question" id="q_P1_4" data-id="P1_4" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Hình quạt tròn bán kính $R$, ứng với cung $90^{\circ}$ có diện tích bằng</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$\pi R^2$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{2}$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{4}$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{8}$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Hình quạt tròn bán kính $R$, ứng với cung $90^{\circ}$ có diện tích $S=\dfrac{\pi \cdot R^2 \cdot 90^\circ}{360}=\dfrac{\pi R^2}{4}$.</div></div></div>
+<div class="question" id="q_P1_6" data-id="P1_6" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Độ dài cung tròn có số đo $30^\circ$ của đường tròn bán kính $R$ là</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$\dfrac{\pi R}{180}$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$\dfrac{\pi R}{360}$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$30\pi R$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$\dfrac{\pi R}{6}$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Độ dài cung tròn là $30\cdot\dfrac{\pi}{180}R=\dfrac{\pi R}{6}$.</div></div></div>
+<div class="question" id="q_P1_7" data-id="P1_7" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Diện tích của hình quạt tròn tâm $O$, bán kính $R$, cung có số đo $45^\circ$ là</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{45}$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{4}$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{8}$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$\dfrac{\pi R^2}{16}$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Diện tích hình quạt tròn là $S=\dfrac{\pi R^2\cdot45}{360}=\dfrac{\pi R^2}{8}$.</div></div></div>
+<div class="question" id="q_P1_8" data-id="P1_8" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho hai đường tròn $\left(A; R_1\right)$, $\left(B; R_2\right)$, trong đó $R_2&lt;R_1$. Biết rằng hai đường tròn $(A)$ và $(B)$ cắt nhau (H.5.44). Khi đó:</div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="167.109pt" height="105.59pt" viewBox="0 0 167.109 105.59" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f4_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph0-1">
+<path style="stroke:none;" d="M 3.71875 -6.078125 C 3.78125 -6.3125 3.796875 -6.421875 4 -6.453125 C 4.078125 -6.453125 4.390625 -6.453125 4.59375 -6.453125 C 5.296875 -6.453125 6.40625 -6.453125 6.40625 -5.484375 C 6.40625 -5.140625 6.234375 -4.453125 5.859375 -4.078125 C 5.59375 -3.8125 5.078125 -3.5 4.1875 -3.5 L 3.078125 -3.5 Z M 5.140625 -3.375 C 6.140625 -3.59375 7.328125 -4.28125 7.328125 -5.28125 C 7.328125 -6.125 6.421875 -6.765625 5.125 -6.765625 L 2.3125 -6.765625 C 2.109375 -6.765625 2.015625 -6.765625 2.015625 -6.5625 C 2.015625 -6.453125 2.109375 -6.453125 2.296875 -6.453125 C 2.3125 -6.453125 2.5 -6.453125 2.671875 -6.4375 C 2.859375 -6.421875 2.9375 -6.40625 2.9375 -6.28125 C 2.9375 -6.234375 2.9375 -6.21875 2.90625 -6.09375 L 1.578125 -0.765625 C 1.46875 -0.390625 1.453125 -0.3125 0.671875 -0.3125 C 0.5 -0.3125 0.40625 -0.3125 0.40625 -0.109375 C 0.40625 0 0.53125 0 0.546875 0 C 0.828125 0 1.515625 -0.03125 1.796875 -0.03125 C 2.078125 -0.03125 2.78125 0 3.046875 0 C 3.125 0 3.25 0 3.25 -0.203125 C 3.25 -0.3125 3.15625 -0.3125 2.96875 -0.3125 C 2.609375 -0.3125 2.328125 -0.3125 2.328125 -0.484375 C 2.328125 -0.546875 2.34375 -0.59375 2.359375 -0.65625 L 3.015625 -3.28125 L 4.1875 -3.28125 C 5.09375 -3.28125 5.265625 -2.71875 5.265625 -2.375 C 5.265625 -2.234375 5.1875 -1.921875 5.125 -1.6875 C 5.0625 -1.421875 4.96875 -1.046875 4.96875 -0.859375 C 4.96875 0.21875 6.15625 0.21875 6.296875 0.21875 C 7.125 0.21875 7.484375 -0.78125 7.484375 -0.921875 C 7.484375 -1.046875 7.375 -1.046875 7.359375 -1.046875 C 7.265625 -1.046875 7.25 -0.96875 7.234375 -0.90625 C 6.984375 -0.171875 6.5625 0 6.328125 0 C 6 0 5.9375 -0.21875 5.9375 -0.609375 C 5.9375 -0.90625 6 -1.421875 6.03125 -1.734375 C 6.046875 -1.875 6.078125 -2.0625 6.078125 -2.203125 C 6.078125 -2.96875 5.40625 -3.265625 5.140625 -3.375 Z M 5.140625 -3.375 "/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph0-2">
+<path style="stroke:none;" d="M 1.765625 -1.140625 C 1.375 -0.46875 0.984375 -0.34375 0.5625 -0.3125 C 0.4375 -0.296875 0.34375 -0.296875 0.34375 -0.109375 C 0.34375 -0.046875 0.390625 0 0.46875 0 C 0.75 0 1.046875 -0.03125 1.328125 -0.03125 C 1.65625 -0.03125 2 0 2.3125 0 C 2.375 0 2.5 0 2.5 -0.1875 C 2.5 -0.296875 2.421875 -0.3125 2.34375 -0.3125 C 2.125 -0.328125 1.875 -0.40625 1.875 -0.65625 C 1.875 -0.765625 1.9375 -0.875 2.015625 -1.015625 L 2.78125 -2.28125 L 5.265625 -2.28125 C 5.28125 -2.078125 5.421875 -0.734375 5.421875 -0.640625 C 5.421875 -0.34375 4.90625 -0.3125 4.703125 -0.3125 C 4.5625 -0.3125 4.46875 -0.3125 4.46875 -0.109375 C 4.46875 0 4.59375 0 4.609375 0 C 5.015625 0 5.4375 -0.03125 5.84375 -0.03125 C 6.09375 -0.03125 6.71875 0 6.96875 0 C 7.03125 0 7.140625 0 7.140625 -0.203125 C 7.140625 -0.3125 7.046875 -0.3125 6.921875 -0.3125 C 6.296875 -0.3125 6.296875 -0.375 6.265625 -0.65625 L 5.671875 -6.859375 C 5.640625 -7.046875 5.640625 -7.09375 5.484375 -7.09375 C 5.3125 -7.09375 5.28125 -7.03125 5.21875 -6.921875 Z M 2.96875 -2.59375 L 4.90625 -5.859375 L 5.234375 -2.59375 Z M 2.96875 -2.59375 "/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph0-3">
+<path style="stroke:none;" d="M 1.578125 -0.765625 C 1.484375 -0.390625 1.46875 -0.3125 0.6875 -0.3125 C 0.515625 -0.3125 0.421875 -0.3125 0.421875 -0.109375 C 0.421875 0 0.5 0 0.6875 0 L 4.21875 0 C 5.78125 0 6.953125 -1.171875 6.953125 -2.140625 C 6.953125 -2.859375 6.375 -3.421875 5.421875 -3.53125 C 6.453125 -3.71875 7.484375 -4.453125 7.484375 -5.40625 C 7.484375 -6.125 6.828125 -6.765625 5.640625 -6.765625 L 2.3125 -6.765625 C 2.125 -6.765625 2.03125 -6.765625 2.03125 -6.5625 C 2.03125 -6.453125 2.125 -6.453125 2.3125 -6.453125 C 2.328125 -6.453125 2.515625 -6.453125 2.6875 -6.4375 C 2.859375 -6.421875 2.953125 -6.40625 2.953125 -6.28125 C 2.953125 -6.234375 2.9375 -6.21875 2.90625 -6.09375 Z M 3.078125 -3.625 L 3.6875 -6.078125 C 3.78125 -6.421875 3.796875 -6.453125 4.234375 -6.453125 L 5.515625 -6.453125 C 6.375 -6.453125 6.59375 -5.875 6.59375 -5.4375 C 6.59375 -4.5625 5.734375 -3.625 4.53125 -3.625 Z M 2.640625 -0.3125 C 2.5 -0.3125 2.484375 -0.3125 2.421875 -0.3125 C 2.3125 -0.328125 2.28125 -0.34375 2.28125 -0.421875 C 2.28125 -0.453125 2.28125 -0.46875 2.34375 -0.640625 L 3.015625 -3.40625 L 4.890625 -3.40625 C 5.84375 -3.40625 6.03125 -2.671875 6.03125 -2.25 C 6.03125 -1.265625 5.15625 -0.3125 3.984375 -0.3125 Z M 2.640625 -0.3125 "/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph0-4">
+<path style="stroke:none;" d="M 7.53125 -6.890625 C 7.53125 -6.921875 7.515625 -6.984375 7.421875 -6.984375 C 7.390625 -6.984375 7.375 -6.96875 7.265625 -6.859375 L 6.578125 -6.109375 C 6.484375 -6.234375 6.03125 -6.984375 4.9375 -6.984375 C 2.71875 -6.984375 0.5 -4.796875 0.5 -2.5 C 0.5 -0.859375 1.671875 0.21875 3.1875 0.21875 C 4.046875 0.21875 4.796875 -0.171875 5.3125 -0.640625 C 6.234375 -1.453125 6.40625 -2.34375 6.40625 -2.375 C 6.40625 -2.484375 6.3125 -2.484375 6.296875 -2.484375 C 6.234375 -2.484375 6.1875 -2.453125 6.15625 -2.375 C 6.078125 -2.09375 5.84375 -1.390625 5.15625 -0.8125 C 4.484375 -0.25 3.859375 -0.09375 3.34375 -0.09375 C 2.453125 -0.09375 1.390625 -0.609375 1.390625 -2.15625 C 1.390625 -2.71875 1.609375 -4.3125 2.59375 -5.484375 C 3.203125 -6.1875 4.125 -6.671875 5.015625 -6.671875 C 6.015625 -6.671875 6.609375 -5.90625 6.609375 -4.765625 C 6.609375 -4.375 6.578125 -4.359375 6.578125 -4.265625 C 6.578125 -4.15625 6.6875 -4.15625 6.71875 -4.15625 C 6.859375 -4.15625 6.859375 -4.1875 6.90625 -4.359375 Z M 7.53125 -6.890625 "/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph1-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph1-1">
+<path style="stroke:none;" d="M 3.5 -1.265625 L 3.265625 -1.265625 C 3.25 -1.109375 3.171875 -0.703125 3.09375 -0.625 C 3.03125 -0.59375 2.5 -0.59375 2.40625 -0.59375 L 1.125 -0.59375 C 1.859375 -1.234375 2.09375 -1.421875 2.515625 -1.75 C 3.03125 -2.171875 3.5 -2.59375 3.5 -3.25 C 3.5 -4.09375 2.765625 -4.609375 1.875 -4.609375 C 1.015625 -4.609375 0.4375 -4 0.4375 -3.359375 C 0.4375 -3.015625 0.734375 -2.96875 0.8125 -2.96875 C 0.96875 -2.96875 1.171875 -3.09375 1.171875 -3.34375 C 1.171875 -3.46875 1.125 -3.71875 0.765625 -3.71875 C 0.984375 -4.203125 1.453125 -4.359375 1.78125 -4.359375 C 2.46875 -4.359375 2.828125 -3.8125 2.828125 -3.25 C 2.828125 -2.65625 2.40625 -2.171875 2.171875 -1.921875 L 0.5 -0.265625 C 0.4375 -0.203125 0.4375 -0.1875 0.4375 0 L 3.296875 0 Z M 3.5 -1.265625 "/>
+</symbol>
+<symbol overflow="visible" id="f4_glyph1-2">
+<path style="stroke:none;" d="M 2.328125 -4.40625 C 2.328125 -4.59375 2.3125 -4.609375 2.109375 -4.609375 C 1.671875 -4.171875 1.046875 -4.15625 0.75 -4.15625 L 0.75 -3.90625 C 0.921875 -3.90625 1.375 -3.90625 1.765625 -4.109375 L 1.765625 -0.5625 C 1.765625 -0.34375 1.765625 -0.25 1.0625 -0.25 L 0.8125 -0.25 L 0.8125 0 C 0.921875 0 1.78125 -0.03125 2.046875 -0.03125 C 2.25 -0.03125 3.125 0 3.28125 0 L 3.28125 -0.25 L 3.015625 -0.25 C 2.328125 -0.25 2.328125 -0.34375 2.328125 -0.5625 Z M 2.328125 -4.40625 "/>
+</symbol>
+</g>
+</defs>
+<g id="f4_surface1">
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 49.607474 0.00125011 C 49.607474 27.396543 27.39985 49.608094 0.000630397 49.608094 C -27.39859 49.608094 -49.606213 27.396543 -49.606213 0.00125011 C -49.606213 -27.39797 -27.39859 -49.60952 0.000630397 -49.60952 C 27.39985 -49.60952 49.607474 -27.39797 49.607474 0.00125011 Z M 49.607474 0.00125011 " transform="matrix(0.994696,0,0,-0.994696,52.514998,52.591087)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 111.125143 0.00125011 C 111.125143 21.91827 93.359045 39.684369 71.442025 39.684369 C 49.521078 39.684369 31.754979 21.91827 31.754979 0.00125011 C 31.754979 -21.919697 49.521078 -39.685795 71.442025 -39.685795 C 93.359045 -39.685795 111.125143 -21.919697 111.125143 0.00125011 Z M 111.125143 0.00125011 " transform="matrix(0.994696,0,0,-0.994696,52.514998,52.591087)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 0.000630397 0.00125011 L 71.442025 0.00125011 L 41.933964 26.528659 L 0.000630397 0.00125011 " transform="matrix(0.994696,0,0,-0.994696,52.514998,52.591087)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph0-1" x="112.97961" y="42.040342"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph1-1" x="120.503494" y="43.526419"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph0-1" x="57.322366" y="42.040342"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph1-2" x="64.847244" y="43.526419"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 53.035156 52.589844 C 53.035156 52.304688 52.800781 52.070312 52.515625 52.070312 C 52.226562 52.070312 51.996094 52.304688 51.996094 52.589844 C 51.996094 52.878906 52.226562 53.113281 52.515625 53.113281 C 52.800781 53.113281 53.035156 52.878906 53.035156 52.589844 Z M 53.035156 52.589844 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph0-2" x="48.798812" y="61.898462"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 124.097656 52.589844 C 124.097656 52.304688 123.863281 52.070312 123.578125 52.070312 C 123.289062 52.070312 123.054688 52.304688 123.054688 52.589844 C 123.054688 52.878906 123.289062 53.113281 123.578125 53.113281 C 123.863281 53.113281 124.097656 52.878906 124.097656 52.589844 Z M 124.097656 52.589844 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph0-3" x="119.568479" y="61.898462"/>
+</g>
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;" d="M 94.746094 26.203125 C 94.746094 25.917969 94.515625 25.683594 94.226562 25.683594 C 93.941406 25.683594 93.707031 25.917969 93.707031 26.203125 C 93.707031 26.492188 93.941406 26.722656 94.226562 26.722656 C 94.515625 26.722656 94.746094 26.492188 94.746094 26.203125 Z M 94.746094 26.203125 "/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f4_glyph0-4" x="91.358888" y="23.758817"/>
+</g>
+</g>
+</svg></div></div></div></div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$AB&lt;R_1-R_2$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$R_1-R_2&lt;AB&lt;R_1+R_2$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$AB&gt;R_1+R_2$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$AB=R_1+R_2$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Do $A$, $B$, $C$ không thẳng hàng nên $3$ điểm đó tạo thành tam giác. Áp dụng bất đẳng thức tam giác ta được<br> $|AC-BC|&lt;AB&lt;AC+BC\Rightarrow |R_1-R_2|&lt;AB&lt;R_1+R_2$.<br> Mà $R_1&gt;R_2 \Rightarrow R_1-R_2&lt;AB&lt;R_1+R_2 $.</div></div></div>
+<div class="question" id="q_P1_9" data-id="P1_9" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho đường tròn $(O; R)$; hai đường thẳng $a_1$ và $a_2$. Gọi $d_1$, $d_2$ lần lượt là khoảng cách từ điểm $O$ đến $a_1$ và $a_2$. Biết rằng $(O)$ cắt $a_1$ và tiếp xúc với $a_2$. Khi đó:</div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="151.515pt" height="97.087pt" viewBox="0 0 151.515 97.087" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f5_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph0-1">
+<path style="stroke:none;" d="M 7.3125 -4.3125 C 7.3125 -5.890625 6.265625 -6.96875 4.796875 -6.96875 C 2.65625 -6.96875 0.484375 -4.71875 0.484375 -2.421875 C 0.484375 -0.78125 1.59375 0.21875 3.015625 0.21875 C 5.109375 0.21875 7.3125 -1.953125 7.3125 -4.3125 Z M 3.078125 -0.046875 C 2.09375 -0.046875 1.40625 -0.84375 1.40625 -2.140625 C 1.40625 -2.578125 1.546875 -4.015625 2.296875 -5.171875 C 2.984375 -6.203125 3.953125 -6.71875 4.734375 -6.71875 C 5.546875 -6.71875 6.421875 -6.15625 6.421875 -4.6875 C 6.421875 -3.984375 6.15625 -2.4375 5.1875 -1.21875 C 4.703125 -0.625 3.90625 -0.046875 3.078125 -0.046875 Z M 3.078125 -0.046875 "/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph0-2">
+<path style="stroke:none;" d="M 5.09375 -6.75 C 5.09375 -6.75 5.09375 -6.859375 4.96875 -6.859375 C 4.8125 -6.859375 3.875 -6.765625 3.71875 -6.75 C 3.640625 -6.734375 3.578125 -6.6875 3.578125 -6.5625 C 3.578125 -6.4375 3.65625 -6.4375 3.8125 -6.4375 C 4.28125 -6.4375 4.3125 -6.375 4.3125 -6.265625 L 4.28125 -6.078125 L 3.6875 -3.734375 C 3.5 -4.09375 3.21875 -4.359375 2.78125 -4.359375 C 1.625 -4.359375 0.390625 -2.90625 0.390625 -1.46875 C 0.390625 -0.546875 0.9375 0.109375 1.703125 0.109375 C 1.90625 0.109375 2.40625 0.0625 2.984375 -0.625 C 3.078125 -0.21875 3.421875 0.109375 3.890625 0.109375 C 4.234375 0.109375 4.46875 -0.125 4.625 -0.4375 C 4.796875 -0.796875 4.921875 -1.390625 4.921875 -1.40625 C 4.921875 -1.515625 4.828125 -1.515625 4.796875 -1.515625 C 4.703125 -1.515625 4.6875 -1.46875 4.65625 -1.328125 C 4.5 -0.6875 4.3125 -0.109375 3.90625 -0.109375 C 3.640625 -0.109375 3.609375 -0.359375 3.609375 -0.5625 C 3.609375 -0.796875 3.640625 -0.875 3.671875 -1.03125 Z M 3.046875 -1.171875 C 2.984375 -1 2.984375 -0.984375 2.84375 -0.8125 C 2.40625 -0.265625 2 -0.109375 1.734375 -0.109375 C 1.234375 -0.109375 1.09375 -0.65625 1.09375 -1.03125 C 1.09375 -1.53125 1.40625 -2.75 1.640625 -3.203125 C 1.953125 -3.78125 2.390625 -4.140625 2.78125 -4.140625 C 3.421875 -4.140625 3.5625 -3.34375 3.5625 -3.28125 C 3.5625 -3.21875 3.546875 -3.15625 3.53125 -3.109375 Z M 3.046875 -1.171875 "/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph0-3">
+<path style="stroke:none;" d="M 3.703125 -6.0625 C 3.765625 -6.296875 3.796875 -6.40625 3.984375 -6.421875 C 4.0625 -6.4375 4.390625 -6.4375 4.578125 -6.4375 C 5.28125 -6.4375 6.375 -6.4375 6.375 -5.453125 C 6.375 -5.125 6.21875 -4.4375 5.84375 -4.0625 C 5.578125 -3.796875 5.0625 -3.484375 4.171875 -3.484375 L 3.0625 -3.484375 Z M 5.125 -3.359375 C 6.125 -3.578125 7.296875 -4.265625 7.296875 -5.265625 C 7.296875 -6.109375 6.40625 -6.75 5.109375 -6.75 L 2.296875 -6.75 C 2.109375 -6.75 2.015625 -6.75 2.015625 -6.546875 C 2.015625 -6.4375 2.109375 -6.4375 2.296875 -6.4375 C 2.3125 -6.4375 2.5 -6.4375 2.671875 -6.421875 C 2.84375 -6.40625 2.9375 -6.390625 2.9375 -6.265625 C 2.9375 -6.21875 2.921875 -6.1875 2.890625 -6.078125 L 1.5625 -0.765625 C 1.46875 -0.390625 1.453125 -0.3125 0.671875 -0.3125 C 0.5 -0.3125 0.40625 -0.3125 0.40625 -0.109375 C 0.40625 0 0.515625 0 0.546875 0 C 0.8125 0 1.515625 -0.03125 1.78125 -0.03125 C 2.0625 -0.03125 2.765625 0 3.046875 0 C 3.125 0 3.234375 0 3.234375 -0.203125 C 3.234375 -0.3125 3.15625 -0.3125 2.96875 -0.3125 C 2.59375 -0.3125 2.328125 -0.3125 2.328125 -0.484375 C 2.328125 -0.546875 2.34375 -0.59375 2.34375 -0.65625 L 3 -3.265625 L 4.171875 -3.265625 C 5.078125 -3.265625 5.25 -2.71875 5.25 -2.375 C 5.25 -2.21875 5.171875 -1.921875 5.109375 -1.6875 C 5.046875 -1.40625 4.953125 -1.046875 4.953125 -0.84375 C 4.953125 0.21875 6.140625 0.21875 6.265625 0.21875 C 7.109375 0.21875 7.453125 -0.78125 7.453125 -0.921875 C 7.453125 -1.03125 7.34375 -1.03125 7.34375 -1.03125 C 7.25 -1.03125 7.234375 -0.96875 7.203125 -0.90625 C 6.96875 -0.171875 6.53125 0 6.3125 0 C 5.984375 0 5.921875 -0.21875 5.921875 -0.609375 C 5.921875 -0.90625 5.96875 -1.40625 6.015625 -1.734375 C 6.03125 -1.859375 6.046875 -2.046875 6.046875 -2.1875 C 6.046875 -2.953125 5.390625 -3.265625 5.125 -3.359375 Z M 5.125 -3.359375 "/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph0-4">
+<path style="stroke:none;" d="M 3.6875 -3.734375 C 3.5 -4.09375 3.21875 -4.359375 2.78125 -4.359375 C 1.625 -4.359375 0.390625 -2.90625 0.390625 -1.46875 C 0.390625 -0.546875 0.9375 0.109375 1.703125 0.109375 C 1.90625 0.109375 2.40625 0.0625 2.984375 -0.625 C 3.078125 -0.21875 3.421875 0.109375 3.890625 0.109375 C 4.234375 0.109375 4.46875 -0.125 4.625 -0.4375 C 4.796875 -0.796875 4.921875 -1.390625 4.921875 -1.40625 C 4.921875 -1.515625 4.828125 -1.515625 4.796875 -1.515625 C 4.703125 -1.515625 4.6875 -1.46875 4.65625 -1.328125 C 4.5 -0.6875 4.3125 -0.109375 3.90625 -0.109375 C 3.640625 -0.109375 3.609375 -0.359375 3.609375 -0.5625 C 3.609375 -0.78125 3.640625 -0.859375 3.75 -1.296875 C 3.84375 -1.703125 3.875 -1.8125 3.953125 -2.1875 L 4.3125 -3.5625 C 4.390625 -3.84375 4.390625 -3.859375 4.390625 -3.90625 C 4.390625 -4.0625 4.265625 -4.171875 4.09375 -4.171875 C 3.859375 -4.171875 3.71875 -3.953125 3.6875 -3.734375 Z M 3.046875 -1.171875 C 2.984375 -1 2.984375 -0.984375 2.84375 -0.8125 C 2.40625 -0.265625 2 -0.109375 1.734375 -0.109375 C 1.234375 -0.109375 1.09375 -0.65625 1.09375 -1.03125 C 1.09375 -1.53125 1.40625 -2.75 1.640625 -3.203125 C 1.953125 -3.78125 2.390625 -4.140625 2.78125 -4.140625 C 3.421875 -4.140625 3.5625 -3.34375 3.5625 -3.28125 C 3.5625 -3.21875 3.546875 -3.15625 3.53125 -3.109375 Z M 3.046875 -1.171875 "/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph1-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph1-1">
+<path style="stroke:none;" d="M 3.484375 -1.25 L 3.25 -1.25 C 3.234375 -1.109375 3.15625 -0.703125 3.078125 -0.625 C 3.015625 -0.59375 2.484375 -0.59375 2.390625 -0.59375 L 1.125 -0.59375 C 1.84375 -1.234375 2.078125 -1.421875 2.5 -1.75 C 3.015625 -2.15625 3.484375 -2.578125 3.484375 -3.234375 C 3.484375 -4.078125 2.75 -4.578125 1.875 -4.578125 C 1.015625 -4.578125 0.4375 -3.984375 0.4375 -3.34375 C 0.4375 -3 0.734375 -2.96875 0.796875 -2.96875 C 0.96875 -2.96875 1.171875 -3.078125 1.171875 -3.328125 C 1.171875 -3.453125 1.125 -3.6875 0.765625 -3.6875 C 0.96875 -4.1875 1.4375 -4.34375 1.765625 -4.34375 C 2.453125 -4.34375 2.8125 -3.796875 2.8125 -3.234375 C 2.8125 -2.640625 2.390625 -2.15625 2.171875 -1.90625 L 0.5 -0.265625 C 0.4375 -0.203125 0.4375 -0.1875 0.4375 0 L 3.28125 0 Z M 3.484375 -1.25 "/>
+</symbol>
+<symbol overflow="visible" id="f5_glyph1-2">
+<path style="stroke:none;" d="M 2.3125 -4.390625 C 2.3125 -4.578125 2.296875 -4.578125 2.109375 -4.578125 C 1.671875 -4.15625 1.03125 -4.140625 0.75 -4.140625 L 0.75 -3.890625 C 0.921875 -3.890625 1.375 -3.890625 1.75 -4.09375 L 1.75 -0.5625 C 1.75 -0.34375 1.75 -0.25 1.0625 -0.25 L 0.796875 -0.25 L 0.796875 0 C 0.921875 0 1.78125 -0.03125 2.03125 -0.03125 C 2.25 -0.03125 3.109375 0 3.265625 0 L 3.265625 -0.25 L 3 -0.25 C 2.3125 -0.25 2.3125 -0.34375 2.3125 -0.5625 Z M 2.3125 -4.390625 "/>
+</symbol>
+</g>
+</defs>
+<g id="f5_surface1">
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph0-1" x="81.628291" y="51.462054"/>
+</g>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45.35561 -0.0000775954 C 45.35561 25.049701 25.049242 45.356069 -0.000536622 45.356069 C -25.050315 45.356069 -45.356683 25.049701 -45.356683 -0.0000775954 C -45.356683 -25.049856 -25.050315 -45.356224 -0.000536622 -45.356224 C 25.049242 -45.356224 45.35561 -25.049856 45.35561 -0.0000775954 Z M -0.000536622 -0.0000775954 L -0.000536622 -45.356224 M -0.000536622 -0.0000775954 L -8.998426 27.107938 M -0.000536622 -0.0000775954 L 45.186061 3.954735 M -90.716772 -0.0000775954 L 34.985562 41.693037 M -90.716772 -45.356224 L 54.424473 -45.356224 " transform="matrix(0.990684,0,0,-0.990684,93.492719,48.089767)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph0-2" x="97.554522" y="73.244216"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph1-1" x="102.691217" y="74.724297"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph0-2" x="93.097436" y="37.349765"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph1-2" x="98.234131" y="38.829847"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph0-3" x="112.088842" y="42.070373"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph0-4" x="7.685643" y="42.547882"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph1-2" x="12.902584" y="44.027964"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph0-4" x="7.685643" y="87.482322"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f5_glyph1-1" x="12.902584" y="88.962403"/>
+</g>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -14.376657 25.321766 L -12.594428 19.939593 L -7.212255 21.725765 " transform="matrix(0.990684,0,0,-0.990684,93.492719,48.089767)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -0.000536622 -39.686213 L -5.670548 -39.686213 L -5.670548 -45.356224 " transform="matrix(0.990684,0,0,-0.990684,93.492719,48.089767)"/>
+</g>
+</svg></div></div></div></div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$d_1&lt;R$ và $d_2=R$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$d_1=R$ và $d_2&lt;R$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$d_1&gt;R$ và $d_2=R$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$d_1&lt;R$ và $d_2&lt;R$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Gọi $H$, $K$ là chân đường vuông góc lần lượt hạ từ $O$ đến $a_1$ và $a_2$.<br> <ul><li>Ta có $d_1=OK$, mà $K$ nằm trong đường tròn nên $OK&lt;R\Rightarrow d_1&lt;R.$</li><li>Ta có $d_2=OH$, mà $H$ nằm trên đường tròn nên $OH=R\Rightarrow d_2=R.$</li></ul></div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="151.515pt" height="111.694pt" viewBox="0 0 151.515 111.694" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f6_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph0-1">
+<path style="stroke:none;" d="M 7.359375 -4.328125 C 7.359375 -5.9375 6.296875 -7 4.8125 -7 C 2.671875 -7 0.484375 -4.75 0.484375 -2.4375 C 0.484375 -0.78125 1.59375 0.21875 3.03125 0.21875 C 5.140625 0.21875 7.359375 -1.953125 7.359375 -4.328125 Z M 3.09375 -0.046875 C 2.109375 -0.046875 1.40625 -0.84375 1.40625 -2.15625 C 1.40625 -2.59375 1.546875 -4.046875 2.3125 -5.203125 C 3 -6.234375 3.96875 -6.75 4.765625 -6.75 C 5.578125 -6.75 6.46875 -6.203125 6.46875 -4.71875 C 6.46875 -4 6.203125 -2.453125 5.21875 -1.234375 C 4.734375 -0.625 3.921875 -0.046875 3.09375 -0.046875 Z M 3.09375 -0.046875 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph0-2">
+<path style="stroke:none;" d="M 7.578125 -6.015625 C 7.671875 -6.375 7.6875 -6.484375 8.421875 -6.484375 C 8.671875 -6.484375 8.75 -6.484375 8.75 -6.671875 C 8.75 -6.78125 8.640625 -6.78125 8.609375 -6.78125 C 8.34375 -6.78125 7.625 -6.75 7.34375 -6.75 C 7.0625 -6.75 6.34375 -6.78125 6.0625 -6.78125 C 5.984375 -6.78125 5.875 -6.78125 5.875 -6.59375 C 5.875 -6.484375 5.96875 -6.484375 6.15625 -6.484375 C 6.171875 -6.484375 6.359375 -6.484375 6.53125 -6.453125 C 6.703125 -6.4375 6.796875 -6.421875 6.796875 -6.296875 C 6.796875 -6.265625 6.78125 -6.234375 6.75 -6.109375 L 6.15625 -3.6875 L 3.125 -3.6875 L 3.71875 -6.015625 C 3.8125 -6.375 3.828125 -6.484375 4.546875 -6.484375 C 4.8125 -6.484375 4.890625 -6.484375 4.890625 -6.671875 C 4.890625 -6.78125 4.78125 -6.78125 4.75 -6.78125 C 4.46875 -6.78125 3.75 -6.75 3.484375 -6.75 C 3.1875 -6.75 2.484375 -6.78125 2.203125 -6.78125 C 2.109375 -6.78125 2 -6.78125 2 -6.59375 C 2 -6.484375 2.09375 -6.484375 2.28125 -6.484375 C 2.3125 -6.484375 2.5 -6.484375 2.65625 -6.453125 C 2.84375 -6.4375 2.9375 -6.421875 2.9375 -6.296875 C 2.9375 -6.265625 2.921875 -6.234375 2.890625 -6.109375 L 1.5625 -0.78125 C 1.453125 -0.390625 1.4375 -0.3125 0.65625 -0.3125 C 0.484375 -0.3125 0.390625 -0.3125 0.390625 -0.109375 C 0.390625 0 0.5 0 0.53125 0 C 0.8125 0 1.515625 -0.03125 1.78125 -0.03125 C 2 -0.03125 2.21875 -0.015625 2.421875 -0.015625 C 2.640625 -0.015625 2.859375 0 3.078125 0 C 3.15625 0 3.265625 0 3.265625 -0.203125 C 3.265625 -0.3125 3.1875 -0.3125 2.984375 -0.3125 C 2.625 -0.3125 2.34375 -0.3125 2.34375 -0.484375 C 2.34375 -0.546875 2.359375 -0.59375 2.375 -0.65625 L 3.046875 -3.375 L 6.078125 -3.375 C 5.671875 -1.734375 5.4375 -0.78125 5.390625 -0.640625 C 5.296875 -0.3125 5.109375 -0.3125 4.484375 -0.3125 C 4.34375 -0.3125 4.25 -0.3125 4.25 -0.109375 C 4.25 0 4.375 0 4.390625 0 C 4.671875 0 5.375 -0.03125 5.65625 -0.03125 C 5.859375 -0.03125 6.078125 -0.015625 6.296875 -0.015625 C 6.515625 -0.015625 6.734375 0 6.9375 0 C 7.015625 0 7.140625 0 7.140625 -0.203125 C 7.140625 -0.3125 7.046875 -0.3125 6.859375 -0.3125 C 6.484375 -0.3125 6.21875 -0.3125 6.21875 -0.484375 C 6.21875 -0.546875 6.234375 -0.59375 6.234375 -0.65625 Z M 7.578125 -6.015625 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph0-3">
+<path style="stroke:none;" d="M 5.0625 -4.015625 C 5.046875 -4.046875 5.015625 -4.125 5.015625 -4.15625 C 5.015625 -4.15625 5.1875 -4.296875 5.296875 -4.375 L 7.03125 -5.71875 C 7.96875 -6.40625 8.359375 -6.453125 8.65625 -6.484375 C 8.734375 -6.484375 8.828125 -6.5 8.828125 -6.671875 C 8.828125 -6.71875 8.796875 -6.78125 8.71875 -6.78125 C 8.5 -6.78125 8.265625 -6.75 8.015625 -6.75 C 7.65625 -6.75 7.28125 -6.78125 6.921875 -6.78125 C 6.84375 -6.78125 6.734375 -6.78125 6.734375 -6.59375 C 6.734375 -6.515625 6.78125 -6.484375 6.84375 -6.484375 C 7.0625 -6.453125 7.15625 -6.40625 7.15625 -6.265625 C 7.15625 -6.09375 6.859375 -5.859375 6.796875 -5.8125 L 2.921875 -2.828125 L 3.71875 -6.015625 C 3.8125 -6.375 3.828125 -6.484375 4.546875 -6.484375 C 4.796875 -6.484375 4.890625 -6.484375 4.890625 -6.671875 C 4.890625 -6.765625 4.8125 -6.78125 4.75 -6.78125 C 4.46875 -6.78125 3.75 -6.75 3.484375 -6.75 C 3.1875 -6.75 2.484375 -6.78125 2.203125 -6.78125 C 2.125 -6.78125 2 -6.78125 2 -6.59375 C 2 -6.484375 2.09375 -6.484375 2.28125 -6.484375 C 2.421875 -6.484375 2.59375 -6.46875 2.71875 -6.453125 C 2.875 -6.4375 2.9375 -6.40625 2.9375 -6.296875 C 2.9375 -6.265625 2.921875 -6.234375 2.890625 -6.109375 L 1.5625 -0.78125 C 1.453125 -0.390625 1.4375 -0.3125 0.65625 -0.3125 C 0.484375 -0.3125 0.375 -0.3125 0.375 -0.125 C 0.375 0 0.5 0 0.53125 0 C 0.8125 0 1.515625 -0.03125 1.78125 -0.03125 C 2 -0.03125 2.21875 -0.015625 2.421875 -0.015625 C 2.640625 -0.015625 2.859375 0 3.078125 0 C 3.140625 0 3.265625 0 3.265625 -0.203125 C 3.265625 -0.3125 3.1875 -0.3125 2.984375 -0.3125 C 2.625 -0.3125 2.34375 -0.3125 2.34375 -0.484375 C 2.34375 -0.5625 2.40625 -0.78125 2.4375 -0.921875 C 2.578125 -1.4375 2.703125 -1.96875 2.828125 -2.484375 L 4.3125 -3.640625 L 5.46875 -0.96875 C 5.578125 -0.703125 5.578125 -0.671875 5.578125 -0.609375 C 5.578125 -0.3125 5.15625 -0.3125 5.0625 -0.3125 C 4.953125 -0.3125 4.84375 -0.3125 4.84375 -0.109375 C 4.84375 0 4.96875 0 4.984375 0 C 5.390625 0 5.796875 -0.03125 6.203125 -0.03125 C 6.421875 -0.03125 6.953125 0 7.171875 0 C 7.21875 0 7.359375 0 7.359375 -0.203125 C 7.359375 -0.3125 7.25 -0.3125 7.15625 -0.3125 C 6.75 -0.3125 6.625 -0.40625 6.46875 -0.75 Z M 5.0625 -4.015625 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph0-4">
+<path style="stroke:none;" d="M 5.125 -6.78125 C 5.125 -6.796875 5.125 -6.890625 5 -6.890625 C 4.84375 -6.890625 3.90625 -6.8125 3.734375 -6.78125 C 3.65625 -6.78125 3.59375 -6.734375 3.59375 -6.59375 C 3.59375 -6.484375 3.6875 -6.484375 3.828125 -6.484375 C 4.3125 -6.484375 4.328125 -6.40625 4.328125 -6.3125 L 4.296875 -6.109375 L 3.703125 -3.75 C 3.53125 -4.125 3.234375 -4.390625 2.796875 -4.390625 C 1.625 -4.390625 0.390625 -2.9375 0.390625 -1.484375 C 0.390625 -0.546875 0.9375 0.109375 1.71875 0.109375 C 1.921875 0.109375 2.421875 0.0625 3.015625 -0.640625 C 3.09375 -0.21875 3.4375 0.109375 3.921875 0.109375 C 4.265625 0.109375 4.484375 -0.125 4.65625 -0.4375 C 4.8125 -0.796875 4.953125 -1.40625 4.953125 -1.421875 C 4.953125 -1.515625 4.859375 -1.515625 4.828125 -1.515625 C 4.734375 -1.515625 4.71875 -1.484375 4.6875 -1.34375 C 4.515625 -0.703125 4.34375 -0.109375 3.9375 -0.109375 C 3.671875 -0.109375 3.640625 -0.375 3.640625 -0.5625 C 3.640625 -0.8125 3.65625 -0.875 3.703125 -1.046875 Z M 3.0625 -1.1875 C 3.015625 -1 3.015625 -0.984375 2.859375 -0.8125 C 2.421875 -0.265625 2.015625 -0.109375 1.734375 -0.109375 C 1.25 -0.109375 1.109375 -0.65625 1.109375 -1.046875 C 1.109375 -1.546875 1.421875 -2.765625 1.65625 -3.21875 C 1.953125 -3.8125 2.40625 -4.171875 2.796875 -4.171875 C 3.453125 -4.171875 3.59375 -3.359375 3.59375 -3.296875 C 3.59375 -3.234375 3.5625 -3.1875 3.5625 -3.125 Z M 3.0625 -1.1875 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph0-5">
+<path style="stroke:none;" d="M 3.734375 -6.109375 C 3.78125 -6.34375 3.8125 -6.4375 4 -6.46875 C 4.09375 -6.484375 4.40625 -6.484375 4.609375 -6.484375 C 5.3125 -6.484375 6.421875 -6.484375 6.421875 -5.5 C 6.421875 -5.15625 6.265625 -4.46875 5.875 -4.078125 C 5.609375 -3.828125 5.09375 -3.515625 4.1875 -3.515625 L 3.078125 -3.515625 Z M 5.15625 -3.375 C 6.15625 -3.59375 7.34375 -4.296875 7.34375 -5.296875 C 7.34375 -6.15625 6.453125 -6.78125 5.140625 -6.78125 L 2.3125 -6.78125 C 2.109375 -6.78125 2.03125 -6.78125 2.03125 -6.59375 C 2.03125 -6.484375 2.109375 -6.484375 2.3125 -6.484375 C 2.328125 -6.484375 2.515625 -6.484375 2.6875 -6.453125 C 2.859375 -6.4375 2.953125 -6.421875 2.953125 -6.296875 C 2.953125 -6.265625 2.9375 -6.234375 2.90625 -6.109375 L 1.578125 -0.78125 C 1.484375 -0.390625 1.453125 -0.3125 0.671875 -0.3125 C 0.5 -0.3125 0.40625 -0.3125 0.40625 -0.109375 C 0.40625 0 0.53125 0 0.546875 0 C 0.828125 0 1.515625 -0.03125 1.796875 -0.03125 C 2.078125 -0.03125 2.78125 0 3.0625 0 C 3.140625 0 3.265625 0 3.265625 -0.203125 C 3.265625 -0.3125 3.171875 -0.3125 2.984375 -0.3125 C 2.609375 -0.3125 2.328125 -0.3125 2.328125 -0.484375 C 2.328125 -0.546875 2.359375 -0.59375 2.359375 -0.65625 L 3.015625 -3.296875 L 4.203125 -3.296875 C 5.109375 -3.296875 5.28125 -2.734375 5.28125 -2.390625 C 5.28125 -2.234375 5.203125 -1.921875 5.140625 -1.703125 C 5.078125 -1.421875 4.984375 -1.046875 4.984375 -0.859375 C 4.984375 0.21875 6.1875 0.21875 6.3125 0.21875 C 7.15625 0.21875 7.5 -0.78125 7.5 -0.921875 C 7.5 -1.046875 7.390625 -1.046875 7.390625 -1.046875 C 7.296875 -1.046875 7.28125 -0.96875 7.25 -0.90625 C 7 -0.171875 6.578125 0 6.34375 0 C 6.015625 0 5.953125 -0.21875 5.953125 -0.609375 C 5.953125 -0.921875 6.015625 -1.421875 6.046875 -1.734375 C 6.078125 -1.875 6.09375 -2.0625 6.09375 -2.203125 C 6.09375 -2.96875 5.421875 -3.28125 5.15625 -3.375 Z M 5.15625 -3.375 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph0-6">
+<path style="stroke:none;" d="M 3.703125 -3.75 C 3.53125 -4.125 3.234375 -4.390625 2.796875 -4.390625 C 1.625 -4.390625 0.390625 -2.9375 0.390625 -1.484375 C 0.390625 -0.546875 0.9375 0.109375 1.71875 0.109375 C 1.921875 0.109375 2.421875 0.0625 3.015625 -0.640625 C 3.09375 -0.21875 3.4375 0.109375 3.921875 0.109375 C 4.265625 0.109375 4.484375 -0.125 4.65625 -0.4375 C 4.8125 -0.796875 4.953125 -1.40625 4.953125 -1.421875 C 4.953125 -1.515625 4.859375 -1.515625 4.828125 -1.515625 C 4.734375 -1.515625 4.71875 -1.484375 4.6875 -1.34375 C 4.515625 -0.703125 4.34375 -0.109375 3.9375 -0.109375 C 3.671875 -0.109375 3.640625 -0.375 3.640625 -0.5625 C 3.640625 -0.78125 3.65625 -0.859375 3.765625 -1.296875 C 3.875 -1.71875 3.890625 -1.8125 3.984375 -2.203125 L 4.34375 -3.59375 C 4.40625 -3.859375 4.40625 -3.890625 4.40625 -3.921875 C 4.40625 -4.09375 4.296875 -4.1875 4.125 -4.1875 C 3.890625 -4.1875 3.734375 -3.96875 3.703125 -3.75 Z M 3.0625 -1.1875 C 3.015625 -1 3.015625 -0.984375 2.859375 -0.8125 C 2.421875 -0.265625 2.015625 -0.109375 1.734375 -0.109375 C 1.25 -0.109375 1.109375 -0.65625 1.109375 -1.046875 C 1.109375 -1.546875 1.421875 -2.765625 1.65625 -3.21875 C 1.953125 -3.8125 2.40625 -4.171875 2.796875 -4.171875 C 3.453125 -4.171875 3.59375 -3.359375 3.59375 -3.296875 C 3.59375 -3.234375 3.5625 -3.1875 3.5625 -3.125 Z M 3.0625 -1.1875 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph1-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph1-1">
+<path style="stroke:none;" d="M 3.515625 -1.265625 L 3.28125 -1.265625 C 3.25 -1.109375 3.1875 -0.703125 3.09375 -0.625 C 3.03125 -0.59375 2.5 -0.59375 2.40625 -0.59375 L 1.125 -0.59375 C 1.859375 -1.234375 2.09375 -1.4375 2.515625 -1.765625 C 3.03125 -2.171875 3.515625 -2.59375 3.515625 -3.265625 C 3.515625 -4.109375 2.78125 -4.609375 1.890625 -4.609375 C 1.015625 -4.609375 0.4375 -4.015625 0.4375 -3.375 C 0.4375 -3.015625 0.734375 -2.984375 0.8125 -2.984375 C 0.96875 -2.984375 1.171875 -3.09375 1.171875 -3.34375 C 1.171875 -3.484375 1.125 -3.71875 0.765625 -3.71875 C 0.984375 -4.21875 1.453125 -4.359375 1.78125 -4.359375 C 2.46875 -4.359375 2.84375 -3.828125 2.84375 -3.265625 C 2.84375 -2.65625 2.40625 -2.171875 2.1875 -1.921875 L 0.5 -0.265625 C 0.4375 -0.203125 0.4375 -0.1875 0.4375 0 L 3.296875 0 Z M 3.515625 -1.265625 "/>
+</symbol>
+<symbol overflow="visible" id="f6_glyph1-2">
+<path style="stroke:none;" d="M 2.328125 -4.421875 C 2.328125 -4.609375 2.3125 -4.609375 2.125 -4.609375 C 1.671875 -4.171875 1.046875 -4.171875 0.765625 -4.171875 L 0.765625 -3.921875 C 0.921875 -3.921875 1.390625 -3.921875 1.765625 -4.109375 L 1.765625 -0.5625 C 1.765625 -0.34375 1.765625 -0.25 1.078125 -0.25 L 0.8125 -0.25 L 0.8125 0 C 0.9375 0 1.78125 -0.03125 2.046875 -0.03125 C 2.265625 -0.03125 3.140625 0 3.28125 0 L 3.28125 -0.25 L 3.03125 -0.25 C 2.328125 -0.25 2.328125 -0.34375 2.328125 -0.5625 Z M 2.328125 -4.421875 "/>
+</symbol>
+</g>
+</defs>
+<g id="f6_surface1">
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-1" x="81.664591" y="51.805935"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-2" x="89.070884" y="104.496274"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-3" x="71.401444" y="17.307365"/>
+</g>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 45.354839 -0.00126964 C 45.354839 25.047405 25.047856 45.354388 -0.000818599 45.354388 C -25.049494 45.354388 -45.356476 25.047405 -45.356476 -0.00126964 C -45.356476 -25.049945 -25.049494 -45.356927 -0.000818599 -45.356927 C 25.047856 -45.356927 45.354839 -25.049945 45.354839 -0.00126964 Z M -0.000818599 -0.00126964 L -0.000818599 -45.356927 M -0.000818599 -0.00126964 L -8.998278 27.10867 M -0.000818599 -0.00126964 L 45.186333 3.952753 M -90.716053 -0.00126964 L 34.985816 41.694272 M -90.716053 -45.356927 L 54.426755 -45.356927 " transform="matrix(0.996809,0,0,-0.996809,93.602378,48.412797)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-4" x="97.689296" y="73.72278"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph1-1" x="102.857752" y="75.212013"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-4" x="93.204652" y="37.606388"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph1-2" x="98.373107" y="39.096618"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-5" x="112.313484" y="42.356184"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-6" x="7.264746" y="42.836646"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph1-2" x="12.513943" y="44.325879"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph0-6" x="7.264746" y="88.048922"/>
+</g>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f6_glyph1-1" x="12.513943" y="89.538155"/>
+</g>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -14.378727 25.321718 L -12.591775 19.941269 L -7.211326 21.724302 " transform="matrix(0.996809,0,0,-0.996809,93.602378,48.412797)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -0.000818599 -39.686491 L -5.667337 -39.686491 L -5.667337 -45.356927 " transform="matrix(0.996809,0,0,-0.996809,93.602378,48.412797)"/>
+</g>
+</svg></div></div></div></div></div></div>
+<div class="question" id="q_P1_10" data-id="P1_10" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho hai đường tròn $(O;5\,\text{ cm})$, $\left(O'; 4\,\text{ cm}\right)$ với $OO'=9\,\text{ cm}$. Kết luận nào sau đây đúng về vị trí tương đối của hai đường tròn?</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">Hai đường tròn cắt nhau</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">Hai đường tròn ở ngoài nhau</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">Hai đường tròn tiếp xúc ngoài</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">Hai đường tròn tiếp xúc trong</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Đường tròn $(O)$ có bán kính $R=5$ cm và đường tròn $(O')$ có bán kính $R'=4$ cm.<br> Ta thấy $R+R'=5+4=9\,\,\text{ cm}=OO'$. Do đó hai đường tròn tiếp xúc ngoài.</div></div></div>
+<div class="question" id="q_P1_11" data-id="P1_11" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho đường tròn $(0; 6\,\text{ cm})$ và đường thẳng $a$ với khoảng cách từ $O$ đến $a$ là $4\,\text{ cm}$. Kết luận nào sau đây đúng về vi trí giữa đường tròn $(O)$ và đường thẳng $a$?</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$(O)$ và $a$ cắt nhau tại hai điểm</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$(O)$ và $a$ tiếp xúc</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$(O)$ và $a$ không có điểm chung</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$(O)$ và $a$ có duy nhất điểm chung</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Ta thấy khoảng cách từ $O$ đến đường thẳng $a$ là $4$ cm nhỏ hơn bán kính của đường tròn $(O)$ ($6$ cm) nên đường tròn $(O)$ cắt đường thẳng $a$ tại hai điểm.</div></div></div>
+<div class="question" id="q_P1_12" data-id="P1_12" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Góc ở tâm là góc</div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">có đỉnh nằm trên đường tròn</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">có đỉnh nằm trên bán kính của đường tròn</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">có hai cạnh là hai đường kính của đường tròn</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">có đỉnh trùng với tâm đường tròn</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Theo định nghĩa thì góc ở tâm là góc có đỉnh nằm trên đường tròn.</div></div></div>
+<div class="question" id="q_P1_13" data-id="P1_13" data-kind="mc" data-part="1"><div class="qtext"><div class="tp"><b>Câu <span class="qno"></span>:</b> Cho hai tiếp tuyến của đường tròn $(O)$ tại $A$ và $B$ cắt nhau tại $M$ (hình bên). Biết $\widehat{AMB}=50^{\circ}$. Số đo cung nhỏ $AB$ là</div><div class="tp"><div class="center"><div class="tp"><div class="table-responsive figure" style="text-align:center;margin:10px 0"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="155.33pt" height="103.263pt" viewBox="0 0 155.33 103.263" version="1.2">
+<defs>
+<g>
+<symbol overflow="visible" id="f7_glyph0-0">
+<path style="stroke:none;" d=""/>
+</symbol>
+<symbol overflow="visible" id="f7_glyph0-1">
+<path style="stroke:none;" d="M 5.84375 -3.453125 C 5.84375 -4.71875 5.015625 -5.578125 3.828125 -5.578125 C 2.125 -5.578125 0.390625 -3.78125 0.390625 -1.9375 C 0.390625 -0.625 1.265625 0.171875 2.40625 0.171875 C 4.09375 0.171875 5.84375 -1.5625 5.84375 -3.453125 Z M 2.453125 -0.03125 C 1.671875 -0.03125 1.125 -0.671875 1.125 -1.71875 C 1.125 -2.0625 1.234375 -3.21875 1.84375 -4.140625 C 2.390625 -4.96875 3.15625 -5.375 3.78125 -5.375 C 4.4375 -5.375 5.140625 -4.9375 5.140625 -3.75 C 5.140625 -3.1875 4.9375 -1.953125 4.15625 -0.984375 C 3.765625 -0.5 3.125 -0.03125 2.453125 -0.03125 Z M 2.453125 -0.03125 "/>
+</symbol>
+<symbol overflow="visible" id="f7_glyph0-2">
+<path style="stroke:none;" d="M 7.328125 -4.796875 C 7.390625 -5.078125 7.40625 -5.15625 8 -5.15625 C 8.1875 -5.15625 8.25 -5.15625 8.25 -5.3125 C 8.25 -5.40625 8.171875 -5.40625 8.046875 -5.40625 L 7 -5.40625 C 6.796875 -5.40625 6.78125 -5.40625 6.6875 -5.25 L 3.796875 -0.75 L 3.1875 -5.21875 C 3.15625 -5.40625 3.140625 -5.40625 2.9375 -5.40625 L 1.859375 -5.40625 C 1.703125 -5.40625 1.625 -5.40625 1.625 -5.25 C 1.625 -5.15625 1.6875 -5.15625 1.84375 -5.15625 C 1.953125 -5.15625 2.09375 -5.140625 2.1875 -5.140625 C 2.3125 -5.125 2.359375 -5.09375 2.359375 -5.015625 C 2.359375 -4.984375 2.359375 -4.953125 2.328125 -4.859375 L 1.328125 -0.84375 C 1.25 -0.515625 1.109375 -0.265625 0.46875 -0.25 C 0.4375 -0.25 0.328125 -0.234375 0.328125 -0.09375 C 0.328125 -0.03125 0.375 0 0.4375 0 C 0.703125 0 0.96875 -0.03125 1.234375 -0.03125 C 1.5 -0.03125 1.78125 0 2.046875 0 C 2.09375 0 2.1875 0 2.1875 -0.15625 C 2.1875 -0.25 2.109375 -0.25 2.046875 -0.25 C 1.59375 -0.25 1.515625 -0.40625 1.515625 -0.59375 C 1.515625 -0.640625 1.515625 -0.6875 1.546875 -0.78125 L 2.609375 -5.078125 L 2.625 -5.078125 L 3.3125 -0.1875 C 3.328125 -0.09375 3.328125 0 3.421875 0 C 3.515625 0 3.5625 -0.09375 3.59375 -0.140625 L 6.796875 -5.140625 L 5.671875 -0.609375 C 5.59375 -0.3125 5.578125 -0.25 4.953125 -0.25 C 4.8125 -0.25 4.734375 -0.25 4.734375 -0.09375 C 4.734375 0 4.828125 0 4.84375 0 C 5.0625 0 5.609375 -0.03125 5.828125 -0.03125 C 6.15625 -0.03125 6.484375 0 6.8125 0 C 6.859375 0 6.96875 0 6.96875 -0.15625 C 6.96875 -0.25 6.890625 -0.25 6.75 -0.25 C 6.453125 -0.25 6.234375 -0.25 6.234375 -0.390625 C 6.234375 -0.421875 6.234375 -0.4375 6.265625 -0.578125 Z M 7.328125 -4.796875 "/>
+</symbol>
+<symbol overflow="visible" id="f7_glyph0-3">
+<path style="stroke:none;" d="M 1.265625 -0.609375 C 1.1875 -0.3125 1.171875 -0.25 0.546875 -0.25 C 0.40625 -0.25 0.328125 -0.25 0.328125 -0.09375 C 0.328125 0 0.40625 0 0.546875 0 L 3.375 0 C 4.625 0 5.546875 -0.9375 5.546875 -1.703125 C 5.546875 -2.28125 5.09375 -2.734375 4.328125 -2.828125 C 5.140625 -2.96875 5.984375 -3.5625 5.984375 -4.3125 C 5.984375 -4.890625 5.453125 -5.40625 4.5 -5.40625 L 1.84375 -5.40625 C 1.703125 -5.40625 1.625 -5.40625 1.625 -5.234375 C 1.625 -5.15625 1.6875 -5.15625 1.84375 -5.15625 C 1.859375 -5.15625 2.015625 -5.15625 2.140625 -5.140625 C 2.28125 -5.125 2.359375 -5.109375 2.359375 -5.015625 C 2.359375 -4.984375 2.34375 -4.953125 2.328125 -4.859375 Z M 2.453125 -2.890625 L 2.953125 -4.859375 C 3.015625 -5.125 3.03125 -5.15625 3.375 -5.15625 L 4.390625 -5.15625 C 5.09375 -5.15625 5.25 -4.6875 5.25 -4.34375 C 5.25 -3.640625 4.578125 -2.890625 3.609375 -2.890625 Z M 2.109375 -0.25 C 2 -0.25 1.96875 -0.25 1.921875 -0.25 C 1.84375 -0.265625 1.828125 -0.265625 1.828125 -0.328125 C 1.828125 -0.359375 1.828125 -0.375 1.859375 -0.515625 L 2.40625 -2.71875 L 3.90625 -2.71875 C 4.671875 -2.71875 4.8125 -2.140625 4.8125 -1.796875 C 4.8125 -1.015625 4.109375 -0.25 3.171875 -0.25 Z M 2.109375 -0.25 "/>
+</symbol>
+<symbol overflow="visible" id="f7_glyph0-4">
+<path style="stroke:none;" d="M 1.421875 -0.90625 C 1.09375 -0.375 0.796875 -0.265625 0.4375 -0.25 C 0.34375 -0.234375 0.28125 -0.234375 0.28125 -0.09375 C 0.28125 -0.046875 0.3125 0 0.375 0 C 0.59375 0 0.84375 -0.03125 1.0625 -0.03125 C 1.328125 -0.03125 1.59375 0 1.84375 0 C 1.890625 0 2 0 2 -0.15625 C 2 -0.234375 1.921875 -0.25 1.875 -0.25 C 1.6875 -0.265625 1.5 -0.328125 1.5 -0.515625 C 1.5 -0.609375 1.546875 -0.703125 1.609375 -0.8125 L 2.21875 -1.828125 L 4.203125 -1.828125 C 4.21875 -1.65625 4.328125 -0.578125 4.328125 -0.5 C 4.328125 -0.265625 3.90625 -0.25 3.75 -0.25 C 3.640625 -0.25 3.5625 -0.25 3.5625 -0.09375 C 3.5625 0 3.65625 0 3.671875 0 C 4 0 4.34375 -0.03125 4.671875 -0.03125 C 4.859375 -0.03125 5.359375 0 5.5625 0 C 5.609375 0 5.703125 0 5.703125 -0.15625 C 5.703125 -0.25 5.625 -0.25 5.515625 -0.25 C 5.03125 -0.25 5.03125 -0.296875 5 -0.53125 L 4.515625 -5.46875 C 4.5 -5.625 4.5 -5.65625 4.375 -5.65625 C 4.25 -5.65625 4.21875 -5.609375 4.171875 -5.53125 Z M 2.359375 -2.078125 L 3.921875 -4.6875 L 4.171875 -2.078125 Z M 2.359375 -2.078125 "/>
+</symbol>
+</g>
+</defs>
+<g id="f7_surface1">
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 42.519792 -0.0013161 C 42.519792 23.485436 23.48254 42.518754 -0.00027797 42.518754 C -23.483096 42.518754 -42.520348 23.485436 -42.520348 -0.0013161 C -42.520348 -23.484134 -23.483096 -42.521386 -0.00027797 -42.521386 C 23.48254 -42.521386 42.519792 -23.484134 42.519792 -0.0013161 Z M 42.519792 -0.0013161 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 16.751245 -32.831626 L 21.798733 -30.250837 L 24.375588 -35.302259 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 16.778784 32.852598 L 21.826272 30.271809 L 24.403126 35.319297 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 88.494028 2.579473 C 88.088813 1.780845 87.87637 0.895665 87.87637 -0.0013161 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 87.022663 -0.0013161 C 87.022663 -1.028124 87.270514 -2.047063 87.738675 -2.963716 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -0.00027797 -0.0013161 L 19.355638 37.900086 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -0.00027797 -0.0013161 L 19.3281 -37.879114 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill:none;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M -0.00027797 -0.0013161 L 93.54545 -0.0013161 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 19.355638 37.900086 L 19.3281 -37.879114 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 93.54545 -0.0013161 L 19.355638 37.900086 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 93.54545 -0.0013161 L 19.3281 -37.879114 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 0.79835 -0.0013161 C 0.79835 0.439306 0.440345 0.797312 -0.00027797 0.797312 C -0.4409 0.797312 -0.798906 0.439306 -0.798906 -0.0013161 C -0.798906 -0.441939 -0.4409 -0.79601 -0.00027797 -0.79601 C 0.440345 -0.79601 0.79835 -0.441939 0.79835 -0.0013161 Z M 0.79835 -0.0013161 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f7_glyph0-1" x="36.844342" y="53.97974"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 94.340144 -0.0013161 C 94.340144 0.439306 93.986072 0.797312 93.54545 0.797312 C 93.104827 0.797312 92.746822 0.439306 92.746822 -0.0013161 C 92.746822 -0.441939 93.104827 -0.79601 93.54545 -0.79601 C 93.986072 -0.79601 94.340144 -0.441939 94.340144 -0.0013161 Z M 94.340144 -0.0013161 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f7_glyph0-2" x="139.840248" y="53.97974"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 20.122794 -37.879114 C 20.122794 -37.438491 19.768722 -37.084419 19.3281 -37.084419 C 18.887477 -37.084419 18.529471 -37.438491 18.529471 -37.879114 C 18.529471 -38.319736 18.887477 -38.677742 19.3281 -38.677742 C 19.768722 -38.677742 20.122794 -38.319736 20.122794 -37.879114 Z M 20.122794 -37.879114 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f7_glyph0-3" x="64.405634" y="96.465514"/>
+</g>
+<path style="fill-rule:nonzero;fill:rgb(0%,0%,0%);fill-opacity:1;stroke-width:0.3985;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 20.154267 37.900086 C 20.154267 38.340709 19.796261 38.698714 19.355638 38.698714 C 18.915016 38.698714 18.55701 38.340709 18.55701 37.900086 C 18.55701 37.459464 18.915016 37.101458 19.355638 37.101458 C 19.796261 37.101458 20.154267 37.459464 20.154267 37.900086 Z M 20.154267 37.900086 " transform="matrix(0.992913,0,0,-0.992913,45.601839,51.276037)"/>
+<g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
+  <use xlink:href="#f7_glyph0-4" x="64.66677" y="11.473115"/>
+</g>
+</g>
+</svg></div></div></div></div></div><div class="opts"><div class="opt" tabindex="0" role="button" data-k="A"><span class="lab"></span><div class="ob">$140^{\circ}$</div></div><div class="opt" tabindex="0" role="button" data-k="B"><span class="lab"></span><div class="ob">$230^{\circ}$</div></div><div class="opt" tabindex="0" role="button" data-k="C"><span class="lab"></span><div class="ob">$130^{\circ}$</div></div><div class="opt" tabindex="0" role="button" data-k="D"><span class="lab"></span><div class="ob">$150^{\circ}$</div></div></div><div class="fb"></div><div class="qtools"><button type="button" class="sol-btn" hidden>Xem lời giải</button></div><div class="solution-box"><div class="tp"><b>Lời giải chi tiết:</b> Tứ giác $AOBM$ có $\widehat{AOB}=360^{\circ}-\widehat{MAO}-\widehat{MBO}-\widehat{AMB}=360^{\circ}-90^{\circ}-90^{\circ}-50^{\circ}=130^{\circ}$.<br> Khi đó $\text{ sđ}\wideparen{AB}=\widehat{AOB}=130^{\circ}$.</div></div></div></div></section>
+        <div id="moreWrap" hidden><button type="button" id="moreBtn"></button></div>
+ 
+    </main>
+ 
+    <!-- THANH ĐIỀU HƯỚNG Ở CUỐI TRANG: lên đầu, nhảy đến câu, mục lục, footer -->
+    <nav class="navbar" aria-label="Điều hướng">
+        <div class="navin">
+            <button type="button" class="nbtn" id="navTop" title="Lên đầu trang">⬆ Đầu trang</button>
+            <div class="jump">
+                <label for="navNum">Câu</label>
+                <input type="number" id="navNum" min="1" inputmode="numeric" placeholder="số">
+                <span id="navTotal"></span>
+                <button type="button" class="nbtn" id="navGo">Đi</button>
+            </div>
+            <button type="button" class="nbtn" id="navToc" title="Mục lục câu hỏi">☰ Mục lục</button>
+            <span class="nav-credit">Liên hệ Nguyễn Tiến Vũ - 0984693719</span>
+        </div>
+    </nav>
+ 
+    <div class="modal" id="tocModal" role="dialog" aria-modal="true">
+        <div class="mbox">
+            <h2>Mục lục câu hỏi</h2>
+            <div class="tocleg">
+                <span class="t-correct">Đúng</span><span class="t-wrong">Sai</span><span class="t-partial">Một phần</span><span class="t-none">Chưa làm</span>
+            </div>
+            <div class="tocgrid" id="tocGrid"></div>
+            <div class="mbtns"><button type="button" class="sbtn" id="tocClose" style="background:#6c757d;">Đóng</button></div>
+        </div>
+    </div>
+ 
+    <div class="modal" id="summary" role="dialog" aria-modal="true">
+        <div class="mbox">
+            <h2>Kết quả luyện tập</h2>
+            <div id="sumBody"></div>
+            <div id="sumMsg"></div>
+            <div class="mbtns">
+                <button type="button" class="sbtn" id="sumRetry">Làm lại câu chưa đúng</button>
+                <button type="button" class="sbtn warn" id="sumRestart">Làm lại từ đầu</button>
+                <button type="button" class="sbtn" id="sumClose" style="background:#6c757d;">Đóng</button>
+            </div>
+        </div>
+    </div>
+ 
+    <script>
+        const MEDIA_SCOPE = '.question.shown';
+        // =====================================================================
+        // XỬ LÝ SVG / ẢNH (dùng chung cho quiz và trình chiếu)
+        // Mỗi template khai báo trước: const MEDIA_SCOPE = '.vung-chua-hinh, ...';
+        // =====================================================================
+        const MEDIA_SVG_SEL = MEDIA_SCOPE.split(',').map(s => s.trim() + ' svg').join(', ');
+        const MEDIA_ALL_SEL = MEDIA_SCOPE.split(',').map(s => s.trim()).flatMap(s => [s + ' svg', s + ' img']).join(', ');
+
+        // Chỉ nhận số thuần hoặc "px"; "10cm", "50%", "auto"... trả về NaN để không đọc sai đơn vị
+        function svgNum(v) {
+            if (v == null) return NaN;
+            const m = String(v).trim().match(/^([0-9]*\.?[0-9]+)(px)?$/i);
+            return m ? parseFloat(m[1]) : NaN;
+        }
+
+        // Đổi id trong từng SVG thành duy nhất để các hình không dùng nhầm clipPath/marker/gradient của nhau
+        let __svgSeq = 0;
+        function uniquifySvgIds(svg) {
+            if (svg.dataset.idsDone) return;
+            svg.dataset.idsDone = '1';
+            const withId = svg.querySelectorAll('[id]');
+            if (!withId.length) return;
+            const prefix = 'svg' + (++__svgSeq) + '_';
+            const map = {};
+            withId.forEach(n => { map[n.id] = prefix + n.id; });
+            const ids = Object.keys(map);
+            const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const urlRe = /url\(\s*(['"]?)#([^)'"\s]+)\1\s*\)/g;
+            const fixUrls = str => str.replace(urlRe, (m, q, id) => map[id] ? `url(${q}#${map[id]}${q})` : m);
+
+            svg.querySelectorAll('*').forEach(n => {
+                if (n.tagName.toLowerCase() === 'style') {
+                    let css = fixUrls(n.textContent);
+                    css = css.replace(new RegExp('#(' + ids.map(esc).join('|') + ')(?![\\w-])', 'g'), '#' + prefix + '$1');
+                    n.textContent = css;
+                    return;
+                }
+                Array.from(n.attributes).forEach(a => {
+                    if (a.name === 'id' || a.value.indexOf('#') < 0) return;
+                    if ((a.name === 'href' || a.name === 'xlink:href') && a.value.charAt(0) === '#') {
+                        const id = a.value.slice(1);
+                        if (map[id]) n.setAttribute(a.name, '#' + map[id]);
+                    } else {
+                        const nv = fixUrls(a.value);
+                        if (nv !== a.value) n.setAttribute(a.name, nv);
+                    }
+                });
+            });
+            withId.forEach(n => { n.id = map[n.id]; });
+        }
+
+        // Chuẩn hóa SVG: id duy nhất + thêm viewBox nếu thiếu để SVG co giãn đúng
+        function normalizeSvgs() {
+            document.querySelectorAll(MEDIA_SVG_SEL).forEach(svg => {
+                if (svg.closest('mjx-container')) return;
+                uniquifySvgIds(svg);
+                if (svg.dataset.normalized) return;
+                const w = svgNum(svg.getAttribute('width'));
+                const h = svgNum(svg.getAttribute('height'));
+
+                if (!svg.hasAttribute('viewBox')) {
+                    if (w > 0 && h > 0) {
+                        svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                    } else {
+                        try {   // đang bị ẩn thì getBBox lỗi -> sẽ thử lại khi phần chứa nó hiện ra
+                            const b = svg.getBBox();
+                            if (b.width && b.height)
+                                svg.setAttribute('viewBox', `${b.x - 2} ${b.y - 2} ${b.width + 4} ${b.height + 4}`);
+                        } catch (e) { return; }
+                    }
+                }
+                if (svg.hasAttribute('viewBox')) {
+                    if (w > 0) { svg.style.width = '100%'; svg.style.maxWidth = w + 'px'; }  // kích thước gốc làm trần
+                    svg.removeAttribute('height');
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    svg.dataset.normalized = '1';
+                }
+            });
+        }
+
+        // Zoom: phóng to bằng cách tăng chiều rộng thật, khung tự cao theo, cuộn bằng thanh cuộn gốc
+        const __zoomRefresh = new Set();
+        let __zoomResizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(__zoomResizeTimer);
+            __zoomResizeTimer = setTimeout(() => __zoomRefresh.forEach(fn => fn()), 150);
+        });
+
+        function setupImageZoom() {
+            document.querySelectorAll(MEDIA_ALL_SEL).forEach(el => {
+                if (el.closest('.zoom-container') || el.closest('mjx-container') || el.classList.contains('no-zoom')) return;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'zoom-container';
+                const viewport = document.createElement('div');
+                viewport.className = 'zoom-viewport';
+                el.parentNode.insertBefore(wrapper, el);
+                viewport.appendChild(el);
+                wrapper.appendChild(viewport);
+                el.classList.add('zoom-media');
+
+                let scale = 1;
+                const STEP = 0.25, MIN = 1, MAX = 4;
+
+                const toolbar = document.createElement('div');
+                toolbar.className = 'zoom-toolbar';
+                const mk = (txt, title) => {
+                    const b = document.createElement('button');
+                    b.type = 'button'; b.className = 'zoom-btn'; b.innerHTML = txt; b.title = title;
+                    b.setAttribute('aria-label', title);
+                    return b;
+                };
+                const btnIn = mk('➕', 'Phóng to'), btnOut = mk('➖', 'Thu nhỏ'), btnReset = mk('↺', 'Mặc định');
+
+                function apply(newScale) {
+                    const cx = viewport.scrollWidth ? (viewport.scrollLeft + viewport.clientWidth / 2) / viewport.scrollWidth : 0.5;
+                    const cy = viewport.scrollHeight ? (viewport.scrollTop + viewport.clientHeight / 2) / viewport.scrollHeight : 0.5;
+
+                    scale = Math.min(MAX, Math.max(MIN, Math.round(newScale * 100) / 100));
+
+                    el.classList.remove('zoomed');
+                    el.style.removeProperty('--zw');
+                    const base = el.getBoundingClientRect().width;   // chiều rộng vừa khung hiện tại
+                    if (scale > 1 && base > 0) {
+                        el.style.setProperty('--zw', (base * scale) + 'px');
+                        el.classList.add('zoomed');
+                        viewport.scrollLeft = cx * viewport.scrollWidth - viewport.clientWidth / 2;
+                        viewport.scrollTop = cy * viewport.scrollHeight - viewport.clientHeight / 2;
+                    }
+                    viewport.classList.toggle('can-pan', el.classList.contains('zoomed'));
+                    btnIn.disabled = scale >= MAX;
+                    btnOut.disabled = scale <= MIN;
+                }
+
+                btnIn.onclick = () => apply(scale + STEP);
+                btnOut.onclick = () => apply(scale - STEP);
+                btnReset.onclick = () => apply(1);
+                __zoomRefresh.add(() => { if (scale > 1) apply(scale); });
+
+                // Ctrl + lăn chuột để zoom, nhấp đúp để phóng to/reset
+                viewport.addEventListener('wheel', e => {
+                    if (!e.ctrlKey) return;
+                    e.preventDefault();
+                    apply(scale + (e.deltaY < 0 ? STEP : -STEP));
+                }, { passive: false });
+                viewport.addEventListener('dblclick', () => apply(scale > 1 ? 1 : 2));
+
+                // Kéo thả bằng chuột (cảm ứng dùng cuộn gốc của trình duyệt)
+                let dragging = false, sx = 0, sy = 0, sl = 0, st = 0;
+                viewport.addEventListener('pointerdown', e => {
+                    if (e.pointerType !== 'mouse' || !el.classList.contains('zoomed')) return;
+                    dragging = true; sx = e.clientX; sy = e.clientY; sl = viewport.scrollLeft; st = viewport.scrollTop;
+                    viewport.setPointerCapture(e.pointerId);
+                    viewport.classList.add('dragging');
+                });
+                viewport.addEventListener('pointermove', e => {
+                    if (!dragging) return;
+                    viewport.scrollLeft = sl - (e.clientX - sx);
+                    viewport.scrollTop = st - (e.clientY - sy);
+                });
+                const stop = () => { dragging = false; viewport.classList.remove('dragging'); };
+                viewport.addEventListener('pointerup', stop);
+                viewport.addEventListener('pointercancel', stop);
+
+                toolbar.append(btnIn, btnOut, btnReset);
+                wrapper.appendChild(toolbar);
+                apply(1);
+            });
+        }
+
+        function initMedia() { normalizeSvgs(); setupImageZoom(); }
+
+        window.addEventListener('load', () => setTimeout(initMedia, 300));
+
+ 
+        // =====================================================================
+        // LUYỆN TẬP
+        // =====================================================================
+        const KEY = {"P1_1": {"k": "mc", "a": "C"}, "P1_2": {"k": "mc", "a": "D"}, "P1_3": {"k": "mc", "a": "B"}, "P1_4": {"k": "mc", "a": "C"}, "P1_6": {"k": "mc", "a": "D"}, "P1_7": {"k": "mc", "a": "C"}, "P1_8": {"k": "mc", "a": "B"}, "P1_9": {"k": "mc", "a": "A"}, "P1_10": {"k": "mc", "a": "C"}, "P1_11": {"k": "mc", "a": "A"}, "P1_12": {"k": "mc", "a": "A"}, "P1_13": {"k": "mc", "a": "C"}};                 // { id: {k:'mc', a:'B'} | {k:'tf'} | {k:'short', a:'-4'} }
+        const MAX_SCORE = 3;
+        const TF_PTS = [0, 0.1, 0.25, 0.5, 1];    // thang điểm đúng/sai theo số ý đúng
+ 
+        const $ = (s, r) => (r || document).querySelector(s);
+        const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+        const fmt = x => (Math.round(x * 100) / 100).toString().replace('.', ',');
+        function hashStr(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+ 
+        // ---- trạng thái được lưu ----
+        const STORE_KEY = 'practice:v1:' + location.pathname + '|' + hashStr(document.title + JSON.stringify(KEY));
+        if (/[?&]reset=1(&|$)/.test(location.search)) { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+        let state = {};
+        try { state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch (e) { state = {}; }
+        state.ans = state.ans || {};              // id -> đáp án đã chọn
+        state.copts = state.copts || {};          // id -> thứ tự phương án (chữ cái gốc)
+        state.set = Object.assign({ sq: false, sc: false, hide: false }, state.set || {});
+        function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+ 
+        // ---- dữ liệu DOM ----
+        const questions = $$('.question');
+        const byId = {};
+        questions.forEach(q => { byId[q.dataset.id] = q; });
+        const ORIG_Q = questions.map(q => q.dataset.id);
+        const ORIG_CH = {};
+        questions.forEach(q => { if (q.dataset.kind === 'mc') ORIG_CH[q.dataset.id] = $$('.opt', q).map(o => o.dataset.k); });
+        const res = {};                           // id -> {status, pts, max}
+        let summaryShown = false;
+ 
+        // =====================================================================
+        // TẢI THEO KHỐI (mỗi đợt BLOCK câu)
+        // =====================================================================
+        const BLOCK = 5;
+        let shownCount = 0;                       // số câu (theo thứ tự đang hiển thị) đã hiện
+        let io = null;
+        let pendingJump = null;                   // câu đang được nhảy tới (giữ vị trí khi các khối phía trên dàn chữ xong)
+        function keepJump() { if (pendingJump) scrollToQuestion(pendingJump, false); }
+ 
+        // Dàn chữ toán + xử lý hình cho một số phần tử; xếp hàng để không chạy chồng nhau
+        function typesetNodes(nodes) {
+            const run = () => {
+                if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
+                    MathJax.startup.promise = MathJax.startup.promise
+                        .then(() => MathJax.typesetPromise(nodes))
+                        .then(() => { initMedia(); rearm(); keepJump(); })
+                        .catch(err => console.warn(err));
+                } else setTimeout(run, 150);      // MathJax chưa tải xong
+            };
+            run();
+        }
+        function typesetQuestions(els) {
+            const nodes = [];
+            els.forEach(q => { const a = $('.qtext', q), b = $('.opts', q); if (a) nodes.push(a); if (b) nodes.push(b); });
+            typesetNodes(nodes);
+        }
+        function rearm() {                        // mốc cuối vẫn trong tầm nhìn thì tự tải tiếp
+            const s = $('#moreWrap');
+            if (io && s && !s.hidden) { io.unobserve(s); io.observe(s); }
+        }
+ 
+        function visibleQuestion(q) { return !(state.set.hide && q.classList.contains('done-hide')); }
+        function markDone() { questions.forEach(q => { if (q.classList.contains('s-correct')) q.classList.add('done-hide'); }); }
+        function syncParts() { $$('.part').forEach(p => { p.hidden = !p.querySelector('.question.shown'); }); }
+        function updateMore() {
+            const left = Math.max(questions.length - shownCount, 0);
+            $('#moreWrap').hidden = left <= 0;
+            $('#moreBtn').textContent = 'Tải thêm ' + Math.min(BLOCK, left) + ' câu (còn ' + left + ')';
+        }
+ 
+        // Hiện thêm n câu. exact=true: đếm cả câu đang bị ẩn do "Ẩn câu đã đúng"
+        function revealMore(n, exact) {
+            const all = $$('.question');
+            if (shownCount >= all.length) return;
+            const els = [];
+            let added = 0;
+            while (shownCount < all.length && added < n) {
+                const q = all[shownCount++];
+                q.classList.add('shown');
+                els.push(q);
+                if (exact || visibleQuestion(q)) added++;
+            }
+            state.shown = shownCount;
+            save();
+            syncParts();
+            updateMore();
+            typesetQuestions(els);
+        }
+        function resetShown() { questions.forEach(q => q.classList.remove('shown')); shownCount = 0; }
+        function fillBlock() {                    // luôn có đủ câu chưa ẩn để làm
+            const vis = $$('.question.shown').filter(visibleQuestion).length;
+            if (vis < BLOCK) revealMore(BLOCK - vis);
+        }
+ 
+        // ---- bố cục: thứ tự câu, thứ tự phương án, số câu ----
+        function currentOrder() { return $$('.question').map(q => q.dataset.id); }
+        function applyOrder(order) { order.forEach(id => { const q = byId[id]; if (q) q.parentNode.appendChild(q); }); }
+        function renumber() { $$('.question').forEach((q, i) => { const n = $('.qno', q); if (n) n.textContent = i + 1; }); }
+        function layoutChoices(q, letters) {
+            const box = $('.opts', q);
+            letters.forEach((L, i) => {
+                const o = $('.opt[data-k="' + L + '"]', box);
+                if (o) { box.appendChild(o); $('.lab', o).textContent = 'ABCDEFGH'[i] + '.'; }
+            });
+            state.copts[q.dataset.id] = letters;
+        }
+        function arrangeChoices(q) {
+            const base = ORIG_CH[q.dataset.id].slice();
+            layoutChoices(q, state.set.sc ? shuffle(base) : base);
+        }
+        function applyLayout(fresh) {
+            if (fresh) {
+                applyOrder(ORIG_Q);
+                if (state.set.sq) $$('.qlist').forEach(box => shuffle(Array.from(box.children)).forEach(q => box.appendChild(q)));
+                state.order = currentOrder();
+                state.copts = {};
+                questions.forEach(q => { if (q.dataset.kind === 'mc') arrangeChoices(q); });
+            }
+            renumber();
+            save();
+            if (fresh) { resetShown(); revealMore(BLOCK, true); }
+        }
+ 
+        // ---- thống kê ----
+        function updateStats() {
+            const ids = Object.keys(res);
+            let score = 0, ok = 0;
+            ids.forEach(id => { score += res[id].pts; if (res[id].status === 'correct') ok++; });
+            const total = questions.length;
+            $('#stStats').textContent = 'Đã làm ' + ids.length + '/' + total + ' · Đúng ' + ok + ' · ' + fmt(score) + '/' + fmt(MAX_SCORE) + ' điểm';
+            $('#barFill').style.width = (total ? ids.length / total * 100 : 0) + '%';
+        }
+ 
+        function finish(q, status, pts, max, silent) {
+            const id = q.dataset.id;
+            res[id] = { status: status, pts: pts, max: max };
+            q.classList.remove('s-correct', 's-wrong', 's-partial');
+            q.classList.add('s-' + status);
+            const fb = $('.fb', q);
+            fb.textContent = status === 'correct' ? '✔ Chính xác' : (status === 'partial' ? '½ Đúng một phần' : '✘ Chưa đúng');
+            fb.className = 'fb f-' + status;
+            const sb = $('.sol-btn', q);
+            if (sb) sb.hidden = false;
+            updateStats();
+            if (!silent) maybeShowSummary();
+        }
+ 
+        // ---- trả lời: trắc nghiệm ----
+        function answerMC(q, val, silent) {
+            if (q.dataset.done) return;
+            const id = q.dataset.id, correct = KEY[id].a;
+            q.dataset.done = '1';
+            $$('.opt', q).forEach(o => {
+                o.classList.add('locked');
+                if (o.dataset.k === correct) o.classList.add('correct');
+                else if (o.dataset.k === val) o.classList.add('wrong');
+            });
+            if (!silent) { state.ans[id] = val; save(); }
+            const ok = (val === correct);
+            finish(q, ok ? 'correct' : 'wrong', ok ? 0.25 : 0, 0.25, silent);
+        }
+ 
+        // ---- trả lời: đúng/sai từng ý ----
+        function pickTF(q, row, val, silent) {
+            if (row.dataset.val) return;
+            row.dataset.val = val;
+            const ok = (val === row.dataset.ans);
+            $$('.tfb button', row).forEach(b => {
+                b.disabled = true;
+                if (b.dataset.v === row.dataset.ans) b.classList.add('correct');
+                else if (b.dataset.v === val) b.classList.add('wrong');
+            });
+            row.classList.add(ok ? 'r-ok' : 'r-bad');
+            const rows = $$('.tfrow', q);
+            const map = {};
+            rows.forEach(r => { if (r.dataset.val) map[r.dataset.k] = r.dataset.val; });
+            if (!silent) { state.ans[q.dataset.id] = map; save(); }
+            if (Object.keys(map).length === rows.length) {
+                const c = rows.filter(r => r.dataset.val === r.dataset.ans).length;
+                const pts = rows.length === 4 ? TF_PTS[c] : (c / rows.length);
+                q.dataset.done = '1';
+                finish(q, c === rows.length ? 'correct' : (c === 0 ? 'wrong' : 'partial'), pts, 1, silent);
+            }
+        }
+ 
+        // ---- trả lời: trả lời ngắn ----
+        function norm(s) { return s.replace(/\u2212/g, '-').replace(/,/g, '.').replace(/\s+/g, ''); }
+        function sameAns(a, b) {
+            a = norm(a); b = norm(b);
+            if (a === '' || b === '') return false;
+            if (a === b) return true;
+            const x = Number(a), y = Number(b);
+            return isFinite(x) && isFinite(y) && Math.abs(x - y) < 1e-9;
+        }
+        function checkShort(q, silent, text) {
+            if (q.dataset.done) return;
+            const id = q.dataset.id, inp = $('.sans', q);
+            if (text !== undefined) inp.value = text;
+            if (norm(inp.value) === '') { if (!silent) inp.focus(); return; }
+            q.dataset.done = '1';
+            inp.readOnly = true;
+            $('.chk', q).disabled = true;
+            const ok = sameAns(inp.value, KEY[id].a);
+            inp.classList.add(ok ? 'correct' : 'wrong');
+            const ta = $('.true-ans', q);
+            ta.textContent = 'Đáp án đúng: ' + KEY[id].a;
+            ta.hidden = false;
+            if (!silent) { state.ans[id] = inp.value; save(); }
+            finish(q, ok ? 'correct' : 'wrong', ok ? 0.5 : 0, 0.5, silent);
+        }
+ 
+        // ---- lời giải (chỉ dàn chữ ở lần mở đầu tiên) ----
+        function toggleSol(q, btn) {
+            const s = $('.solution-box', q);
+            if (!s) return;
+            const open = s.style.display === 'block';
+            s.style.display = open ? 'none' : 'block';
+            btn.textContent = open ? 'Xem lời giải' : 'Ẩn lời giải';
+            if (!open) {
+                initMedia();
+                if (!s.dataset.ts) { s.dataset.ts = '1'; typesetNodes([s]); }
+            }
+        }
+ 
+        // ---- làm lại ----
+        function resetQuestion(q) {
+            const id = q.dataset.id;
+            delete q.dataset.done; delete res[id]; delete state.ans[id];
+            q.classList.remove('s-correct', 's-wrong', 's-partial', 'done-hide');
+            $$('.opt', q).forEach(o => o.classList.remove('locked', 'correct', 'wrong'));
+            $$('.tfrow', q).forEach(r => {
+                delete r.dataset.val;
+                r.classList.remove('r-ok', 'r-bad');
+                $$('.tfb button', r).forEach(b => { b.disabled = false; b.classList.remove('correct', 'wrong'); });
+            });
+            const inp = $('.sans', q);
+            if (inp) { inp.value = ''; inp.readOnly = false; inp.classList.remove('correct', 'wrong'); $('.chk', q).disabled = false; }
+            const ta = $('.true-ans', q); if (ta) ta.hidden = true;
+            const fb = $('.fb', q); fb.textContent = ''; fb.className = 'fb';
+            const sb = $('.sol-btn', q); if (sb) { sb.hidden = true; sb.textContent = 'Xem lời giải'; }
+            const s = $('.solution-box', q); if (s) s.style.display = 'none';
+        }
+ 
+        function retryWrong() {
+            questions.forEach(q => {
+                const id = q.dataset.id, r = res[id];
+                if (r && r.status === 'correct') return;
+                if (q.dataset.done || state.ans[id]) {
+                    resetQuestion(q);
+                    if (q.dataset.kind === 'mc') arrangeChoices(q);
+                }
+            });
+            state.set.hide = true;
+            $('#optHide').checked = true;
+            document.body.classList.add('hide-done');
+            markDone();                           // chỉ ẩn các câu đã đúng TẠI THỜI ĐIỂM này
+            summaryShown = false;
+            save(); updateStats(); closeSummary();
+            fillBlock();
+            setTimeout(() => {
+                const f = $$('.question.shown').find(visibleQuestion);
+                if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 120);
+        }
+ 
+        function restart(ask) {
+            if (ask && Object.keys(res).length && !confirm('Xoá toàn bộ kết quả và làm lại từ đầu?')) return;
+            questions.forEach(resetQuestion);
+            state.ans = {};
+            applyLayout(true);
+            $('#note').textContent = '';
+            summaryShown = false;
+            closeSummary(); updateStats();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+ 
+        // ---- bảng kết quả ----
+        function buildSummary() {
+            let score = 0;
+            const byPart = {};
+            questions.forEach(q => {
+                const p = q.dataset.part;
+                const b = byPart[p] = byPart[p] || { n: 0, ok: 0, part: 0, done: 0 };
+                b.n++;
+                const r = res[q.dataset.id];
+                if (r) { b.done++; score += r.pts; if (r.status === 'correct') b.ok++; else if (r.status === 'partial') b.part++; }
+            });
+            const pct = MAX_SCORE > 0 ? score / MAX_SCORE * 100 : 0;
+            const names = { 1: 'Phần 1 · Trắc nghiệm', 2: 'Phần 2 · Đúng/Sai', 3: 'Phần 3 · Trả lời ngắn' };
+            let html = '<div class="bigscore">' + fmt(score) + ' / ' + fmt(MAX_SCORE) + '</div><div class="pct">' + Math.round(pct) + '%</div><ul class="plist">';
+            Object.keys(byPart).sort().forEach(p => {
+                const b = byPart[p];
+                html += '<li><span>' + names[p] + '</span><b>' + b.ok + '/' + b.n + ' đúng' +
+                        (b.part ? ' · ' + b.part + ' một phần' : '') + (b.done < b.n ? ' · ' + (b.n - b.done) + ' chưa làm' : '') + '</b></li>';
+            });
+            html += '</ul>';
+            $('#sumBody').innerHTML = html;
+            $('#sumMsg').textContent = pct >= 80 ? 'Rất tốt!' : (pct >= 50 ? 'Khá ổn, hãy ôn lại các câu chưa đúng.' : 'Hãy xem lại lời giải và thử lại.');
+            const notOk = questions.filter(q => { const r = res[q.dataset.id]; return !r || r.status !== 'correct'; }).length;
+            $('#sumRetry').hidden = (notOk === 0);
+        }
+        function openSummary() { buildSummary(); $('#summary').classList.add('open'); }
+        function closeSummary() { $('#summary').classList.remove('open'); }
+        function maybeShowSummary() {
+            if (!summaryShown && Object.keys(res).length === questions.length) { summaryShown = true; openSummary(); }
+        }
+ 
+        // ---- sự kiện ----
+        document.addEventListener('click', e => {
+            if (e.target.closest('.zoom-toolbar')) return;           // nút phóng to/thu nhỏ ảnh không tính là chọn đáp án
+            const opt = e.target.closest('.opt');
+            if (opt) { answerMC(opt.closest('.question'), opt.dataset.k); return; }
+            const tb = e.target.closest('.tfb button');
+            if (tb) { const row = tb.closest('.tfrow'); pickTF(row.closest('.question'), row, tb.dataset.v); return; }
+            const cb = e.target.closest('.chk');
+            if (cb) { checkShort(cb.closest('.question')); return; }
+            const sb = e.target.closest('.sol-btn');
+            if (sb) { toggleSol(sb.closest('.question'), sb); }
+        });
+        document.addEventListener('keydown', e => {
+            const t = e.target;
+            if (e.key === 'Enter' && t.classList && t.classList.contains('sans')) { e.preventDefault(); checkShort(t.closest('.question')); }
+            else if ((e.key === 'Enter' || e.key === ' ') && t.classList && t.classList.contains('opt')) { e.preventDefault(); answerMC(t.closest('.question'), t.dataset.k); }
+            else if (e.key === 'Escape') { closeSummary(); closeToc(); }
+        });
+        $('#btnResult').onclick = openSummary;
+        $('#btnRetry').onclick = retryWrong;
+        $('#btnRestart').onclick = () => restart(true);
+        $('#sumRetry').onclick = retryWrong;
+        $('#sumRestart').onclick = () => restart(false);
+        $('#sumClose').onclick = closeSummary;
+        $('#summary').addEventListener('click', e => { if (e.target.id === 'summary') closeSummary(); });
+        $('#moreBtn').onclick = () => revealMore(BLOCK);
+ 
+        function onLayoutSetting() {
+            save();
+            if (Object.keys(state.ans).length === 0) { applyLayout(true); $('#note').textContent = ''; }
+            else $('#note').textContent = 'Tuỳ chọn trộn sẽ áp dụng khi bấm “Làm lại từ đầu”.';
+        }
+        $('#optSQ').checked = state.set.sq;
+        $('#optSC').checked = state.set.sc;
+        $('#optHide').checked = state.set.hide;
+        $('#optSQ').onchange = e => { state.set.sq = e.target.checked; onLayoutSetting(); };
+        $('#optSC').onchange = e => { state.set.sc = e.target.checked; onLayoutSetting(); };
+        $('#optHide').onchange = e => {
+            state.set.hide = e.target.checked;
+            document.body.classList.toggle('hide-done', state.set.hide);
+            if (state.set.hide) markDone(); else questions.forEach(q => q.classList.remove('done-hide'));
+            save(); fillBlock();
+        };
+        document.body.classList.toggle('hide-done', state.set.hide);
+ 
+        // =====================================================================
+        // THANH ĐIỀU HƯỚNG: lên đầu, nhảy đến câu, mục lục
+        // =====================================================================
+        function scrollToQuestion(q, smooth) { q.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' }); }
+ 
+        function jumpTo(n) {
+            const all = $$('.question');
+            if (!all.length) return;
+            n = Math.min(Math.max(parseInt(n, 10) || 1, 1), all.length);
+            const q = all[n - 1];
+            if (n > shownCount) revealMore(n - shownCount, true);                    // câu chưa được tải -> tải tới câu đó
+            if (q.classList.contains('done-hide')) q.classList.remove('done-hide');  // câu đang bị ẩn do "Ẩn câu đã đúng" -> cho hiện
+            pendingJump = q;
+            setTimeout(() => { if (pendingJump === q) pendingJump = null; }, 5000);
+            scrollToQuestion(q, false);
+            q.classList.remove('flash'); void q.offsetWidth; q.classList.add('flash');
+            setTimeout(() => q.classList.remove('flash'), 1800);
+            $('#navNum').value = n;
+        }
+        // người dùng tự cuộn thì thôi giữ vị trí
+        ['wheel', 'touchstart', 'mousedown'].forEach(ev => window.addEventListener(ev, () => { pendingJump = null; }, { passive: true }));
+        window.addEventListener('keydown', e => { if (e.key !== 'Enter') pendingJump = null; });
+ 
+        function openToc() {
+            const grid = $('#tocGrid');
+            grid.textContent = '';
+            $$('.question').forEach((q, i) => {
+                const r = res[q.dataset.id];
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'tocitem ' + (r ? 't-' + r.status : 't-none');
+                b.textContent = i + 1;
+                b.title = 'Câu ' + (i + 1) + (r ? (r.status === 'correct' ? ' · đúng' : (r.status === 'partial' ? ' · một phần' : ' · sai')) : ' · chưa làm');
+                b.onclick = () => { closeToc(); jumpTo(i + 1); };
+                grid.appendChild(b);
+            });
+            $('#tocModal').classList.add('open');
+        }
+        function closeToc() { $('#tocModal').classList.remove('open'); }
+ 
+        $('#navTotal').textContent = '/ ' + questions.length;
+        $('#navNum').max = questions.length;
+        $('#navTop').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+        $('#navGo').onclick = () => { const v = $('#navNum').value; if (v !== '') jumpTo(v); else $('#navNum').focus(); };
+        $('#navNum').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#navGo').click(); } });
+        $('#navToc').onclick = openToc;
+        $('#tocClose').onclick = closeToc;
+        $('#tocModal').addEventListener('click', e => { if (e.target.id === 'tocModal') closeToc(); });
+ 
+        // tự tải khối tiếp theo khi cuộn gần cuối
+        if ('IntersectionObserver' in window) {
+            io = new IntersectionObserver(entries => {
+                if (entries.some(e => e.isIntersecting)) revealMore(BLOCK);
+            }, { rootMargin: '300px 0px' });
+            io.observe($('#moreWrap'));
+        }
+ 
+        // ---- khởi tạo: khôi phục thứ tự, đáp án đã lưu, rồi hiện khối đầu ----
+        if (state.order && state.order.length === questions.length) applyOrder(state.order);
+        questions.forEach(q => {
+            if (q.dataset.kind !== 'mc') return;
+            const l = state.copts[q.dataset.id];
+            if (l && l.length === ORIG_CH[q.dataset.id].length) layoutChoices(q, l); else arrangeChoices(q);
+        });
+        state.order = currentOrder();
+        renumber();
+        Object.keys(state.ans).forEach(id => {
+            const q = byId[id];
+            if (!q) return;
+            const a = state.ans[id], kind = q.dataset.kind;
+            if (kind === 'mc') answerMC(q, a, true);
+            else if (kind === 'tf') Object.keys(a).forEach(k => { const row = $('.tfrow[data-k="' + k + '"]', q); if (row) pickTF(q, row, a[k], true); });
+            else if (kind === 'short') checkShort(q, true, a);
+        });
+        summaryShown = (questions.length > 0 && Object.keys(res).length === questions.length);   // mở lại trang không bật lại hộp kết quả
+        if (state.set.hide) markDone();
+        (function () {
+            // số câu cần hiện ngay: ít nhất 1 khối, đủ bao gồm câu đã làm và số câu đã hiện lần trước
+            const all = $$('.question');
+            let need = Math.max(BLOCK, state.shown || 0);
+            all.forEach((q, i) => { if (state.ans[q.dataset.id]) need = Math.max(need, i + 1); });
+            need = Math.min(all.length, Math.ceil(need / BLOCK) * BLOCK);
+            revealMore(need, true);
+        })();
+        updateStats();
+        save();
+    </script>
+</body>
+</html>
